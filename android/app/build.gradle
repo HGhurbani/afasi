@@ -1,0 +1,77 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // يجب تطبيق Flutter Gradle Plugin بعد Android و Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+dependencies {
+    implementation 'com.unity3d.ads:unity-ads:4.9.2'
+    implementation 'com.google.ads.mediation:unity:4.9.2.0'
+    implementation 'com.facebook.android:audience-network-sdk:6.16.0'
+    implementation 'com.google.ads.mediation:facebook:6.16.0.0'
+}
+
+
+android {
+    namespace = "com.azkar.doaa.alafasi"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // يجب تعيين معرف تطبيق فريد خاص بك.
+        applicationId = "com.azkar.doaa.alafasi"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    // تحميل بيانات التوقيع من ملف key.properties
+    def keystorePropertiesFile = rootProject.file("key.properties")
+    def keystoreProperties = new Properties()
+
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    } else {
+        throw new GradleException("⚠️ ملف key.properties مفقود! تأكد من إضافته في android/ ثم حاول مجددًا.")
+    }
+
+    signingConfigs {
+        release {
+            def storeFilePath = keystoreProperties["storeFile"]
+            if (storeFilePath && !storeFilePath.isEmpty()) {
+                storeFile file(storeFilePath)
+            } else {
+                throw new GradleException("⚠️ مسار ملف keystore غير صحيح! تحقق من key.properties")
+            }
+            storePassword keystoreProperties["storePassword"]
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true  // تقليل حجم التطبيق في الإصدار النهائي
+            shrinkResources true  // إزالة الموارد غير المستخدمة
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+// تفعيل Firebase خدمات Google
+apply plugin: 'com.google.gms.google-services'
