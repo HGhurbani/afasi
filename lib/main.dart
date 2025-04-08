@@ -41,9 +41,71 @@ Future<void> main() async {
   await _initConsentForAds();
   await AdhkarReminderManager.initialize();
   FirebaseInAppMessaging.instance.setAutomaticDataCollectionEnabled(true);
-  MobileAds.instance.initialize();
+  
+  // Initialize Mobile Ads SDK
+  await MobileAds.instance.initialize();
+  // Set test device IDs for testing
+  MobileAds.instance.updateRequestConfiguration(
+    RequestConfiguration(testDeviceIds: ['ABCDEF123456']), // Replace with your test device ID
+  );
 
   runApp(MyApp(key: myAppKey));
+}
+
+class NativeAdWidget extends StatefulWidget {
+  @override
+  _NativeAdWidgetState createState() => _NativeAdWidgetState();
+}
+
+class _NativeAdWidgetState extends State<NativeAdWidget> {
+  NativeAd? _nativeAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    _nativeAd = NativeAd(
+      adUnitId: 'ca-app-pub-7223999276472548/6597309308',
+      factoryId: 'listTile',
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print('Native Ad failed to load: $error');
+        },
+      ),
+    );
+
+    _nativeAd?.load();
+  }
+
+  @override
+  void dispose() {
+    _nativeAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isAdLoaded || _nativeAd == null) {
+      return Container();
+    }
+
+    return Container(
+      height: 120,
+      alignment: Alignment.center,
+      child: AdWidget(ad: _nativeAd!),
+    );
+  }
 }
 
 /// دالة تهيئة مكتبة UMP لعرض نافذة الموافقة (Consent Form) للمستخدمين في الدول التي تتطلب ذلك
@@ -1927,8 +1989,23 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: filteredSupplications.length,
+                itemCount: filteredSupplications.length + 1, // +1 for the ad
                 itemBuilder: (context, index) {
+                  // Show ad after every 10 items
+                  if (index > 0 && index % 10 == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: NativeAdWidget(),
+                    );
+                  }
+                  
+                  // Adjust index to account for ad insertions
+                  final itemIndex = index - (index ~/ 10);
+                  if (itemIndex >= filteredSupplications.length) {
+                    return null;
+                  }
+                  
+                  final Supplication supp = filteredSupplications[itemIndex];
                   final Supplication supp = filteredSupplications[index];
 
                   return Card(
