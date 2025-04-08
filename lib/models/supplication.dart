@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 
 class Supplication {
-  final int id;
   final String title;
   final String audioUrl;
   final String textAssetPath;
@@ -11,7 +9,6 @@ class Supplication {
   bool isDownloaded;
 
   Supplication({
-    required this.id,
     required this.title,
     required this.audioUrl,
     required this.textAssetPath,
@@ -22,7 +19,6 @@ class Supplication {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'title': title,
       'audioUrl': audioUrl,
       'textAssetPath': textAssetPath,
@@ -33,7 +29,6 @@ class Supplication {
 
   factory Supplication.fromJson(Map<String, dynamic> json) {
     return Supplication(
-      id: json['id'],
       title: json['title'],
       audioUrl: json['audioUrl'],
       textAssetPath: json['textAssetPath'],
