@@ -12,7 +12,10 @@
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
 
 
-    <application
+    <meta-data
+    android:name="com.google.android.gms.ads.APPLICATION_ID"
+    android:value="ca-app-pub-7223999276472548~3940256099942544"/>
+<application
         android:label="أذكار وأدعية العفاسي"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
