@@ -14,16 +14,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'TasbihPage.dart';
 import 'AdhkarReminderPage.dart';
 import 'getCurrentLocation.dart';
 import 'AdhkarReminderManager.dart';
+
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:user_messaging_platform/user_messaging_platform.dart' as UMP;
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 
 final GlobalKey<MyAppState> myAppKey = GlobalKey<MyAppState>();
 
@@ -36,14 +37,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   tz.initializeTimeZones();
   await _initConsentForAds();
   await AdhkarReminderManager.initialize();
   FirebaseInAppMessaging.instance.setAutomaticDataCollectionEnabled(true);
-  
+
   // Initialize Mobile Ads SDK
   await MobileAds.instance.initialize();
-
 
   runApp(MyApp(key: myAppKey));
 }
@@ -95,7 +96,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     if (!_isAdLoaded || _nativeAd == null) {
       return Container();
     }
-
     return Container(
       height: 120,
       alignment: Alignment.center,
@@ -111,13 +111,14 @@ Future<void> _initConsentForAds() async {
 
   try {
     // طلب أحدث معلومات الموافقة
-    var consentInfo = await UMP.UserMessagingPlatform.instance
-        .requestConsentInfoUpdate(params);
+    var consentInfo =
+    await UMP.UserMessagingPlatform.instance.requestConsentInfoUpdate(params);
 
     // التحقق ما إذا كانت الموافقة مطلوبة
     if (consentInfo.consentStatus == UMP.ConsentStatus.required) {
       // عرض نموذج الموافقة
-      consentInfo = await UMP.UserMessagingPlatform.instance.showConsentForm();
+      consentInfo =
+      await UMP.UserMessagingPlatform.instance.showConsentForm();
 
       // بعد إغلاق النموذج، يمكن التحقق من النتيجة:
       if (consentInfo.consentStatus == UMP.ConsentStatus.obtained) {
@@ -265,6 +266,7 @@ class MyAppState extends State<MyApp> {
     final List<double> strengths = <double>[.05];
     final Map<int, Color> swatch = {};
     final int r = color.red, g = color.green, b = color.blue;
+
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
@@ -294,12 +296,11 @@ class Supplication {
     required this.title,
     required this.audioUrl,
     required this.textAssetPath,
-    required this.icon, // ← تمت الإضافة هنا
+    required this.icon,
     this.isLocalAudio = false,
     this.isDownloaded = false,
   });
 }
-
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -308,7 +309,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isAutoNext = false;
 
   // حفظ قائمة المفضلة باستخدام shared_preferences
@@ -358,304 +359,303 @@ class _HomePageState extends State<HomePage> {
       Supplication(
         title: "سورة طه",
         audioUrl:
-            "https://www.youtube.com/watch?v=XMPNjBEw4vc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq",
+        "https://www.youtube.com/watch?v=XMPNjBEw4vc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq",
         textAssetPath: "assets/texts/طه.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة الأنفال",
         audioUrl:
-            "https://www.youtube.com/watch?v=3JaXe2h563c&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=2",
+        "https://www.youtube.com/watch?v=3JaXe2h563c&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=2",
         textAssetPath: "assets/texts/الأنفال.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "تلاوة مؤثرة من سورة المدثر",
         audioUrl:
-            "https://www.youtube.com/watch?v=h4PKhfXmKgk&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=3",
+        "https://www.youtube.com/watch?v=h4PKhfXmKgk&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=3",
         textAssetPath: "assets/texts/المدثر.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "هذان خصمان اختصموا في ربهم | من صلاة التراويح",
         audioUrl:
-            "https://www.youtube.com/watch?v=QHuxUGq4CCk&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=4",
+        "https://www.youtube.com/watch?v=QHuxUGq4CCk&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=4",
         textAssetPath: "assets/texts/الحج.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة القيامة ليلة 27 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=7Iszt7GFN5Q&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=5",
+        "https://www.youtube.com/watch?v=7Iszt7GFN5Q&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=5",
         textAssetPath: "assets/texts/القيامة.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة الحاقة ليلة 27 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=mm5J6AoN4MM&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=6",
+        "https://www.youtube.com/watch?v=mm5J6AoN4MM&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=6",
         textAssetPath: "assets/texts/الحاقة.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة ق ليلة 27 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=bdnhDm58fcQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=7",
+        "https://www.youtube.com/watch?v=bdnhDm58fcQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=7",
         textAssetPath: "assets/texts/قاف.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة المدثر",
         audioUrl:
-            "https://www.youtube.com/watch?v=LOOGmSCndUo&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=8",
+        "https://www.youtube.com/watch?v=LOOGmSCndUo&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=8",
         textAssetPath: "assets/texts/المدثر.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة المزمل ليلة 27 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=rOf_tzIlknI&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=9",
+        "https://www.youtube.com/watch?v=rOf_tzIlknI&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=9",
         textAssetPath: "assets/texts/المزمل.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "صلاة الشفع - سورة الفلق",
         audioUrl:
-            "https://www.youtube.com/watch?v=2Lv3cw-1TXA&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=10",
+        "https://www.youtube.com/watch?v=2Lv3cw-1TXA&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=10",
         textAssetPath: "assets/texts/الفلق.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "صلاة الشفع - سورة الإخلاص",
         audioUrl:
-            "https://www.youtube.com/watch?v=qHK8B3d-aQQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=11",
+        "https://www.youtube.com/watch?v=qHK8B3d-aQQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=11",
         textAssetPath: "assets/texts/الأخلاص.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سورة مريم",
         audioUrl:
-            "https://www.youtube.com/watch?v=y1bHdFHCKQs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=12",
+        "https://www.youtube.com/watch?v=y1bHdFHCKQs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=12",
         textAssetPath: "assets/texts/مريم.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "استجيبوا لله وللرسول",
         audioUrl:
-            "https://www.youtube.com/watch?v=iLjDxArvVgQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=13",
+        "https://www.youtube.com/watch?v=iLjDxArvVgQ&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=13",
         textAssetPath: "assets/texts/الأنفالل.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "من سورة إبراهيم",
         audioUrl:
-            "https://www.youtube.com/watch?v=SUFPYER88fs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=14",
+        "https://www.youtube.com/watch?v=SUFPYER88fs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=14",
         textAssetPath: "assets/texts/ابراهيم.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "وَلَقَدْ أَرْسَلْنَا مُوسَى - من سورة هود",
         audioUrl:
-            "https://www.youtube.com/watch?v=USc1YU_uic0&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=15",
+        "https://www.youtube.com/watch?v=USc1YU_uic0&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=15",
         textAssetPath: "assets/texts/هود.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "وإلى مدين أخاهم شعيبا - من سورة هود",
         audioUrl:
-            "https://www.youtube.com/watch?v=Z3unvO35RzE&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=16",
+        "https://www.youtube.com/watch?v=Z3unvO35RzE&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=16",
         textAssetPath: "assets/texts/هودد.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "والله يدعو إلى دار السلام - من سورة يونس",
         audioUrl:
-            "https://www.youtube.com/watch?v=-f8E0Cg5uhs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=17",
+        "https://www.youtube.com/watch?v=-f8E0Cg5uhs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=17",
         textAssetPath: "assets/texts/يونس.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "للذين أحسنوا الحسنى وزيادة",
         audioUrl:
-            "https://www.youtube.com/watch?v=bpMeNhKxMAE&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=18",
+        "https://www.youtube.com/watch?v=bpMeNhKxMAE&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=18",
         textAssetPath: "assets/texts/يونسس.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "من سورة يوسف",
         audioUrl:
-            "https://www.youtube.com/watch?v=9OCsN7A2Dnc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=19",
+        "https://www.youtube.com/watch?v=9OCsN7A2Dnc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=19",
         textAssetPath: "assets/texts/يوسف.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "واضرب لهم مثلا رجلين",
         audioUrl:
-            "https://www.youtube.com/watch?v=KxpcLKM9jp0&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=20",
+        "https://www.youtube.com/watch?v=KxpcLKM9jp0&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=20",
         textAssetPath: "assets/texts/الكهف.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "وَما مُحَمَّدٌ إِلّا رَسولٌ قَد خَلَت مِن قَبلِهِ الرُّسُلُ",
         audioUrl:
-            "https://www.youtube.com/watch?v=NklF4awiEeI&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=21",
+        "https://www.youtube.com/watch?v=NklF4awiEeI&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=21",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "لِكَيلا تَحزَنوا عَلىٰ ما فاتَكُم وَلا ما أَصٰابَكُم",
         audioUrl:
-            "https://www.youtube.com/watch?v=R9SGnvBr0Gs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=22",
+        "https://www.youtube.com/watch?v=R9SGnvBr0Gs&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=22",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "ولو كنت فظا غليظ القلب لانفضوا من حولك",
         audioUrl:
-            "https://www.youtube.com/watch?v=DwdDmjSue_w&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=23",
+        "https://www.youtube.com/watch?v=DwdDmjSue_w&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=23",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "لا تأكلوا الربا - سورة آل عمران",
         audioUrl:
-            "https://www.youtube.com/watch?v=PPf4nwQP-Yc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=24",
+        "https://www.youtube.com/watch?v=PPf4nwQP-Yc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=24",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "فأصلحوا بين أخويكم",
         audioUrl:
-            "https://www.youtube.com/watch?v=Xn6kPxSRMek&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=25",
+        "https://www.youtube.com/watch?v=Xn6kPxSRMek&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=25",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "سعيهم مشكوراً",
         audioUrl:
-            "https://www.youtube.com/watch?v=A8vMGTn2s5I&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=26",
+        "https://www.youtube.com/watch?v=A8vMGTn2s5I&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=26",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "وكان الإنسان عجولا",
         audioUrl:
-            "https://www.youtube.com/watch?v=cDIHuNpTit8&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=27",
+        "https://www.youtube.com/watch?v=cDIHuNpTit8&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=27",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "ولا تقربوا مال اليتيم",
         audioUrl:
-            "https://www.youtube.com/watch?v=eAvOL3Ck8Kc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=28",
+        "https://www.youtube.com/watch?v=eAvOL3Ck8Kc&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=28",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
       ),
       Supplication(
         title: "شهر رمضان الذي أنزل فيه القرآن",
         audioUrl:
-            "https://www.youtube.com/watch?v=6QkmTaUUotA&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=29",
+        "https://www.youtube.com/watch?v=6QkmTaUUotA&list=PL2hoGhz2jBSqXQUzpLwVrGOjUxEA3YpTq&index=29",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.quran,
-
       ),
     ],
     "الأناشيد": [
       Supplication(
         title: "عمر الفاروق",
         audioUrl:
-            "https://www.youtube.com/watch?v=Gkflvn9v8Os&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR",
+        "https://www.youtube.com/watch?v=Gkflvn9v8Os&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR",
         textAssetPath: "assets/texts/عمر-الفاروق.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "غردي يا روح",
         audioUrl:
-            "https://www.youtube.com/watch?v=t_9-WdMqUi0&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=2",
+        "https://www.youtube.com/watch?v=t_9-WdMqUi0&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=2",
         textAssetPath: "assets/texts/غردقي.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "علي رضي الله عنه",
         audioUrl:
-            "https://www.youtube.com/watch?v=5xJkdp_3cDA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=3",
+        "https://www.youtube.com/watch?v=5xJkdp_3cDA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=3",
         textAssetPath: "assets/texts/علي.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "يا شايل الهم",
         audioUrl:
-            "https://www.youtube.com/watch?v=du7vFCvH7gA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=4",
+        "https://www.youtube.com/watch?v=du7vFCvH7gA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=4",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "يسعد فؤادي",
         audioUrl:
-            "https://www.youtube.com/watch?v=lU279ZXlmqk&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=5",
+        "https://www.youtube.com/watch?v=lU279ZXlmqk&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=5",
         textAssetPath: "assets/texts/فؤادي.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "أضفيت",
         audioUrl:
-            "https://www.youtube.com/watch?v=Q94Kkb4tesc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=6",
+        "https://www.youtube.com/watch?v=Q94Kkb4tesc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=6",
         textAssetPath: "assets/texts/اضفيت.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "صلوا عليه وسلموا",
         audioUrl:
-            "https://www.youtube.com/watch?v=Qm0_ioxhHvc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=7",
+        "https://www.youtube.com/watch?v=Qm0_ioxhHvc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=7",
         textAssetPath: "assets/texts/صلوا.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "حبيبي محمد",
         audioUrl:
-            "https://www.youtube.com/watch?v=rgIHozrtqXI&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=8",
+        "https://www.youtube.com/watch?v=rgIHozrtqXI&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=8",
         textAssetPath: "assets/texts/حبيبي.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "آية وحكاية",
         audioUrl:
-            "https://www.youtube.com/watch?v=J6q_5S_Ddj4&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=9",
+        "https://www.youtube.com/watch?v=J6q_5S_Ddj4&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=9",
         textAssetPath: "assets/texts/حكايات.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "سيبقى اشتياقي",
         audioUrl:
-            "https://www.youtube.com/watch?v=YmOWf3p1Qtg&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=10",
+        "https://www.youtube.com/watch?v=YmOWf3p1Qtg&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=10",
         textAssetPath: "assets/texts/اشتياقي.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "سيد الأخلاق",
         audioUrl:
-            "https://www.youtube.com/watch?v=gmwgiqFEEpA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=11",
+        "https://www.youtube.com/watch?v=gmwgiqFEEpA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=11",
         textAssetPath: "assets/texts/سيد.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "هل لك سر عند الله",
         audioUrl:
-            "https://www.youtube.com/watch?v=lRNHaFAZqhc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=12",
+        "https://www.youtube.com/watch?v=lRNHaFAZqhc&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=12",
         textAssetPath: "assets/texts/سر.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "سيمر هذا الوقت",
         audioUrl:
-            "https://www.youtube.com/watch?v=mJhGGPOTgeU&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=13",
+        "https://www.youtube.com/watch?v=mJhGGPOTgeU&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=13",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.music,
       ),
       Supplication(
         title: "طلع البدر علينا",
         audioUrl:
-            "https://www.youtube.com/watch?v=XjZ1gTvbaIA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=14",
+        "https://www.youtube.com/watch?v=XjZ1gTvbaIA&list=PL2hoGhz2jBSrwCr022cxnFHIKj4NoLLGR&index=14",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.music,
       ),
@@ -690,58 +690,58 @@ class _HomePageState extends State<HomePage> {
       Supplication(
         title: "صيغ الصلاة على النبي ﷺ",
         audioUrl:
-            "https://www.youtube.com/watch?v=PCyw3ASbwZI&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=33",
+        "https://www.youtube.com/watch?v=PCyw3ASbwZI&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=33",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.handsPraying,
       ),
       Supplication(
         title: "يا ذا العزة والجبروت",
         audioUrl:
-            "https://www.youtube.com/watch?v=rCbnJUqXLgM&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=43",
+        "https://www.youtube.com/watch?v=rCbnJUqXLgM&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=43",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.prayingHands,
       ),
       Supplication(
         title: "اللهم اغفر لي",
         audioUrl:
-            "https://www.youtube.com/watch?v=hwEGKh97qM4&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=47",
+        "https://www.youtube.com/watch?v=hwEGKh97qM4&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=47",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.handsPraying, // 👐
+        icon: FontAwesomeIcons.handsPraying,
       ),
       Supplication(
         title: "أنت ملاذنا .. يا أنيس المحجورين",
         audioUrl:
-            "https://www.youtube.com/watch?v=NHx_E7CsIUE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=68",
+        "https://www.youtube.com/watch?v=NHx_E7CsIUE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=68",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.shieldHalved, // 🛡️
+        icon: FontAwesomeIcons.shieldHalved,
       ),
       Supplication(
         title: "أصبحنا وأصبح الملك لله",
         audioUrl:
-            "https://www.youtube.com/watch?v=yssu6YenZCU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=22",
+        "https://www.youtube.com/watch?v=yssu6YenZCU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=22",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.solidSun, // ☀️
+        icon: FontAwesomeIcons.solidSun,
       ),
       Supplication(
         title: "تكبيرات العيد ",
         audioUrl:
-            "https://www.youtube.com/watch?v=_RxP8WQOhqU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=24",
+        "https://www.youtube.com/watch?v=_RxP8WQOhqU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=24",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.mosque, // 🕌
+        icon: FontAwesomeIcons.mosque,
       ),
       Supplication(
         title: "حبي كله لك",
         audioUrl:
-            "https://www.youtube.com/watch?v=foXVsEAExoU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=31",
+        "https://www.youtube.com/watch?v=foXVsEAExoU&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=31",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.heart, // ❤️
+        icon: FontAwesomeIcons.heart,
       ),
       Supplication(
         title: "لبيك",
         audioUrl:
-            "https://www.youtube.com/watch?v=yzZ7iMS492c&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=56",
+        "https://www.youtube.com/watch?v=yzZ7iMS492c&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=56",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.kaaba, // 🕋
+        icon: FontAwesomeIcons.kaaba,
       ),
     ],
     "الأدعية": [
@@ -756,35 +756,35 @@ class _HomePageState extends State<HomePage> {
         title: "ركوب الدابه",
         audioUrl: "assets/audio/mishary4.mp3",
         textAssetPath: "assets/texts/الركوب.txt",
-        icon: FontAwesomeIcons.car, // 🚗 أو 🐪 (رمزي)
+        icon: FontAwesomeIcons.car,
         isLocalAudio: true,
       ),
       Supplication(
         title: "دخول السوق",
         audioUrl: "assets/audio/mishary5.mp3",
         textAssetPath: "assets/texts/سوق.txt",
-        icon: FontAwesomeIcons.store, // 🏬
+        icon: FontAwesomeIcons.store,
         isLocalAudio: true,
       ),
       Supplication(
         title: "دخول المسجد",
         audioUrl: "assets/audio/mishary6.mp3",
         textAssetPath: "assets/texts/المسجد.txt",
-        icon: FontAwesomeIcons.mosque, // 🕌
+        icon: FontAwesomeIcons.mosque,
         isLocalAudio: true,
       ),
       Supplication(
         title: "الاستيقاظ من النوم",
         audioUrl: "assets/audio/mishary7.mp3",
         textAssetPath: "assets/texts/بعد النوم.txt",
-        icon: FontAwesomeIcons.solidClock, // ⏰
+        icon: FontAwesomeIcons.solidClock,
         isLocalAudio: true,
       ),
       Supplication(
         title: "دعاء للمتوفي",
         audioUrl: "assets/audio/mishary9.mp3",
         textAssetPath: "assets/texts/المتوفي.txt",
-        icon: FontAwesomeIcons.dove, // 🕊
+        icon: FontAwesomeIcons.dove,
         isLocalAudio: true,
       ),
       Supplication(
@@ -798,85 +798,85 @@ class _HomePageState extends State<HomePage> {
         title: "دعاء للأولاد",
         audioUrl: "assets/audio/mishary13.mp3",
         textAssetPath: "assets/texts/اولاد.txt",
-        icon: FontAwesomeIcons.child, // 👶
+        icon: FontAwesomeIcons.child,
         isLocalAudio: true,
       ),
       Supplication(
         title: "دعاء كسوف الشمس",
         audioUrl: "assets/audio/mishary14.mp3",
         textAssetPath: "assets/texts/كسوف.txt",
-        icon: FontAwesomeIcons.solarPanel, // ☀️ رمز للظاهرة الشمسية
+        icon: FontAwesomeIcons.solarPanel,
         isLocalAudio: true,
       ),
       Supplication(
         title: "دعاء ختم القران",
         audioUrl: "assets/audio/mishary15.mp3",
         textAssetPath: "assets/texts/ختم.txt",
-        icon: FontAwesomeIcons.bookQuran, // 📖
+        icon: FontAwesomeIcons.bookQuran,
         isLocalAudio: true,
       ),
       Supplication(
         title: "اللهم اشف مرضانا",
         audioUrl:
-            "https://www.youtube.com/watch?v=k7hOmZ71nws&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=67",
+        "https://www.youtube.com/watch?v=k7hOmZ71nws&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=67",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.heart // ❤️ أبسط ومباشر
+        icon: FontAwesomeIcons.heart,
       ),
       Supplication(
         title: "دعاء الجنة",
         audioUrl:
-            "https://www.youtube.com/watch?v=-aL2HrBEpLE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=128",
+        "https://www.youtube.com/watch?v=-aL2HrBEpLE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=128",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.starAndCrescent, // 🌴 جنة/نخيل (أو use: FontAwesomeIcons.treePalm)
+        icon: FontAwesomeIcons.starAndCrescent,
       ),
       Supplication(
         title: "يا من كفانا .. سيء الأسقام",
         audioUrl:
-            "https://www.youtube.com/watch?v=HdQcXgTv2aw&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=10",
+        "https://www.youtube.com/watch?v=HdQcXgTv2aw&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=10",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.handHoldingHeart, // 🤲❤️
+        icon: FontAwesomeIcons.handHoldingHeart,
       ),
       Supplication(
         title: "دعاء لأهل غزة",
         audioUrl:
-            "https://www.youtube.com/watch?v=ngJ88El_w3Q&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=28",
+        "https://www.youtube.com/watch?v=ngJ88El_w3Q&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=28",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.handHoldingMedical, // ✋ رمز للنجدة والدعم
+        icon: FontAwesomeIcons.handHoldingMedical,
       ),
       Supplication(
         title: "الدعاء الجامع",
         audioUrl:
-            "https://www.youtube.com/watch?v=Baz7RSA1jJ0&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=29",
+        "https://www.youtube.com/watch?v=Baz7RSA1jJ0&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=29",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.handsPraying, // 🙏 عام وشامل
+        icon: FontAwesomeIcons.handsPraying,
       ),
       Supplication(
         title: "دعاء رؤية الهلال",
         audioUrl:
-            "https://www.youtube.com/watch?v=bi_P137Xv2g&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=86",
+        "https://www.youtube.com/watch?v=bi_P137Xv2g&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=86",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.moon, // 🌙
+        icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "اللهم فرج هم المهمومين",
         audioUrl:
-            "https://www.youtube.com/watch?v=4Yts6nga0mg&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=173",
+        "https://www.youtube.com/watch?v=4Yts6nga0mg&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=173",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.faceSmileBeam, // 😊 للتفريج والفرح
+        icon: FontAwesomeIcons.faceSmileBeam,
       ),
       Supplication(
         title: "دعاء - إصدار الرحمن و الواقعة و الحديد",
         audioUrl:
-            "https://www.youtube.com/watch?v=fcG_HrPe4GQ&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=170",
+        "https://www.youtube.com/watch?v=fcG_HrPe4GQ&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=170",
         textAssetPath: "assets/texts/sleep.txt",
-        icon: FontAwesomeIcons.quran, // 📖 لإصدار جامع من السور
+        icon: FontAwesomeIcons.quran,
       ),
     ],
     "رمضانيات": [
       Supplication(
         title: "دعاء بلوغ رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=mGYScZSGNMY&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=80",
+        "https://www.youtube.com/watch?v=mGYScZSGNMY&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=80",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
@@ -890,56 +890,56 @@ class _HomePageState extends State<HomePage> {
       Supplication(
         title: "دعاء ليلة 18 رمضان من جامع الشيخ زايد",
         audioUrl:
-            "https://www.youtube.com/watch?v=hg8msa2AUcg&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=188",
+        "https://www.youtube.com/watch?v=hg8msa2AUcg&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=188",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء ليلة 27 رمضان من المسجد الكبير",
         audioUrl:
-            "https://www.youtube.com/watch?v=NRKsCrj5iNI&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=11",
+        "https://www.youtube.com/watch?v=NRKsCrj5iNI&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=11",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء ليلة 20 الراشدية بدبي",
         audioUrl:
-            "https://www.youtube.com/watch?v=wpTT4onWips&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=187",
+        "https://www.youtube.com/watch?v=wpTT4onWips&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=187",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء ليلة 21 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=rDExXcV1AJQ&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=163",
+        "https://www.youtube.com/watch?v=rDExXcV1AJQ&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=163",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء ليلة 27",
         audioUrl:
-            "https://www.youtube.com/watch?v=_8eX9qACLbE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=160",
+        "https://www.youtube.com/watch?v=_8eX9qACLbE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=160",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء ليلة 29 رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=TZb0KvDu2wE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=18",
+        "https://www.youtube.com/watch?v=TZb0KvDu2wE&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=18",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "دعاء القنوت ليلة 27",
         audioUrl:
-            "https://www.youtube.com/watch?v=iTFXS5DhSBk&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=19",
+        "https://www.youtube.com/watch?v=iTFXS5DhSBk&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=19",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
       Supplication(
         title: "الشفع والوتر ودعاء ٢٧ رمضان",
         audioUrl:
-            "https://www.youtube.com/watch?v=_faw3Mq09NM&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=69",
+        "https://www.youtube.com/watch?v=_faw3Mq09NM&list=PL2hoGhz2jBSqosLJN5ECy3KsgT_Pu8kNX&index=69",
         textAssetPath: "assets/texts/sleep.txt",
         icon: FontAwesomeIcons.moon,
       ),
@@ -966,23 +966,30 @@ class _HomePageState extends State<HomePage> {
 
   // القسم الحالي المُختار؛ افتراضيًا "الأذكار"
   String _selectedCategory = "الأذكار";
+
   // قائمة الصوتيات المعروضة بناءً على القسم والبحث
   List<Supplication> filteredSupplications = [];
 
   // مشغل الصوت
   final AudioPlayer _audioPlayer = AudioPlayer();
+
   // لتتبع الصوت الجاري تشغيله
   Supplication? _currentSupplication;
+
   // كاش لتخزين روابط الصوت المستخرجة من يوتيوب لتسريع التحميل
   final Map<String, String> _youtubeCache = {};
+
   // إعلانات AdMob
   BannerAd? _bannerAd;
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
   int _usageCounter = 0;
+
   late AppLifecycleReactor _appLifecycleReactor;
+
   // حقل البحث
   final TextEditingController _searchController = TextEditingController();
+
   // حالة التكرار
   bool _isRepeat = false;
 
@@ -994,41 +1001,34 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     filteredSupplications =
-        List<Supplication>.from(audioCategories[_selectedCategory] ?? []);
+    List<Supplication>.from(audioCategories[_selectedCategory] ?? []);
+
     _appLifecycleReactor = AppLifecycleReactor(appOpenAdManager);
     WidgetsBinding.instance.addObserver(_appLifecycleReactor);
 
+    // الاستماع لانتهاء الصوت للتشغيل التلقائي (AutoNext)
     _audioPlayer.processingStateStream.listen((processingState) {
-      if (processingState == ProcessingState.completed) {
-        if (_isAutoNext) {
-          _playNext();
-        }
+      if (processingState == ProcessingState.completed && _isAutoNext) {
+        _playNext();
       }
     });
+
     loadLastCategory();
-    _audioPlayer.playingStream.listen((isPlaying) {
+    _audioPlayer.playingStream.listen((_) {
       setState(() {});
     });
-    _audioPlayer.processingStateStream.listen((processingState) {
-      if (processingState == ProcessingState.completed) {
-        if (_isAutoNext) {
-          _playNext();
-        }
-      }
-    });
+
     loadFavorites();
     loadBannerAd();
     loadInterstitialAd();
     loadRewardedAd();
     checkDownloadedStatus();
 
+    // أذونات الإشعارات
     FirebaseMessaging.instance
-        .requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    )
+        .requestPermission(alert: true, badge: true, sound: true)
         .then((settings) {
       print('User granted permission: ${settings.authorizationStatus}');
     });
@@ -1074,6 +1074,7 @@ class _HomePageState extends State<HomePage> {
   void updateCategory(String category) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('lastCategory', category); // حفظ القسم الأخير
+
     setState(() {
       _selectedCategory = category;
       _searchController.clear();
@@ -1148,16 +1149,18 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => AlertDialog(
         title: const Text('تأكيد'),
         content: const Text(
-          'يرجى التأكيد بأنك ستشاهدت الإعلان لدعم التطبيق والمساعدة في تطويره. هل أنت متأكد؟',
+          'يرجى التأكيد بأنك ستشاهد الإعلان لدعم التطبيق والمساعدة في تطويره. هل أنت متأكد؟',
           textDirection: TextDirection.rtl,
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('لا')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('لا'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('نعم')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('نعم'),
+          ),
         ],
       ),
     );
@@ -1170,8 +1173,8 @@ class _HomePageState extends State<HomePage> {
   void showRewardedAd() {
     if (_rewardedAd != null) {
       _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('شكراً لدعمك!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('شكراً لدعمك!')));
         loadRewardedAd();
       });
     } else {
@@ -1186,6 +1189,7 @@ class _HomePageState extends State<HomePage> {
       _currentSupplication = supp;
     });
 
+    // إذا كان الصوت متوفرًا محليًا:
     if (supp.isLocalAudio) {
       try {
         await _audioPlayer.setAsset(supp.audioUrl);
@@ -1199,6 +1203,7 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+    // إذا كان الصوت قد تم تنزيله سابقاً:
     final Directory dir = await getApplicationSupportDirectory();
     final String filePath = '${dir.path}/${supp.title}.mp3';
     if (await File(filePath).exists()) {
@@ -1215,6 +1220,7 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+    // التحقق من الاتصال بالإنترنت عند الحاجة
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       ScaffoldMessenger.of(context)
@@ -1222,6 +1228,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    // تحديد مصدر التحميل (يوتيوب أو رابط مباشر)
     String source;
     if (supp.audioUrl.contains("youtube.com") ||
         supp.audioUrl.contains("youtu.be")) {
@@ -1231,6 +1238,7 @@ class _HomePageState extends State<HomePage> {
             const SnackBar(content: Text('رابط تحميل غير صالح.')));
         return;
       }
+      // إذا كان الرابط مخزناً في الكاش
       if (_youtubeCache.containsKey(videoId)) {
         source = _youtubeCache[videoId]!;
       } else {
@@ -1253,8 +1261,11 @@ class _HomePageState extends State<HomePage> {
         Navigator.pop(context);
       }
     } else {
+      // رابط مباشر
       source = supp.audioUrl;
     }
+
+    // تشغيل الصوت
     try {
       await _audioPlayer.setUrl(source);
       _audioPlayer.play();
@@ -1273,12 +1284,15 @@ class _HomePageState extends State<HomePage> {
 
   /// دالة تنزيل الصوت مع مؤشر تقدم وزر إيقاف/استئناف التحميل
   Future<void> downloadAudio(Supplication supp) async {
+    // إذا كان الصوت متوفرًا محلياً
     if (supp.isLocalAudio) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('الصوت متاح بالفعل دون إنترنت.')));
+        const SnackBar(content: Text('الصوت متاح بالفعل دون إنترنت.')),
+      );
       return;
     }
 
+    // إظهار حوار تنبيه بسيط قبل بدء التحميل
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1288,8 +1302,11 @@ class _HomePageState extends State<HomePage> {
             CircularProgressIndicator(),
             SizedBox(width: 20),
             Expanded(
-                child: Text("يرجى الانتظار حتى يبدأ التحميل",
-                    textDirection: TextDirection.rtl)),
+              child: Text(
+                "يرجى الانتظار حتى يبدأ التحميل",
+                textDirection: TextDirection.rtl,
+              ),
+            ),
           ],
         ),
       ),
@@ -1299,6 +1316,7 @@ class _HomePageState extends State<HomePage> {
 
     String urlToDownload = supp.audioUrl;
     try {
+      // إذا كان الرابط من يوتيوب
       if (supp.audioUrl.contains("youtube.com") ||
           supp.audioUrl.contains("youtu.be")) {
         final yt = YoutubeExplode();
@@ -1312,14 +1330,18 @@ class _HomePageState extends State<HomePage> {
       final client = http.Client();
       final request = http.Request("GET", Uri.parse(urlToDownload));
       final response = await client.send(request);
+
       final int contentLength = response.contentLength ?? 0;
       final DateTime startTime = DateTime.now();
       int downloadedBytes = 0;
+
       final progressNotifier = ValueNotifier<double>(0.0);
       final downloadedBytesNotifier = ValueNotifier<int>(0);
       final pausedNotifier = ValueNotifier<bool>(false);
+
       StreamSubscription<List<int>>? subscription;
 
+      // عرض حوار التحميل والتقدم
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -1331,11 +1353,14 @@ class _HomePageState extends State<HomePage> {
               final int elapsed =
                   DateTime.now().difference(startTime).inSeconds;
               if (downloadedBytesNotifier.value > 0 && elapsed > 0) {
-                final double speed = downloadedBytesNotifier.value / elapsed;
-                estimatedSeconds =
-                    ((contentLength - downloadedBytesNotifier.value) / speed)
-                        .round();
+                final double speed =
+                    downloadedBytesNotifier.value / elapsed; // bytes per second
+                estimatedSeconds = ((contentLength -
+                    downloadedBytesNotifier.value) /
+                    speed)
+                    .round();
               }
+
               return AlertDialog(
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1343,8 +1368,9 @@ class _HomePageState extends State<HomePage> {
                     CircularProgressIndicator(value: progress),
                     const SizedBox(height: 20),
                     Text(
-                        "جاري تحميل الصوت... ${(progress * 100).toStringAsFixed(0)}%",
-                        textDirection: TextDirection.rtl),
+                      "جاري تحميل الصوت... ${(progress * 100).toStringAsFixed(0)}%",
+                      textDirection: TextDirection.rtl,
+                    ),
                     if (estimatedSeconds > 0)
                       Text("الوقت المتبقي: ${estimatedSeconds}s"),
                   ],
@@ -1376,6 +1402,7 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
+      // بدء التحميل
       final List<int> bytes = [];
       subscription = response.stream.listen((newBytes) {
         bytes.addAll(newBytes);
@@ -1385,22 +1412,28 @@ class _HomePageState extends State<HomePage> {
           progressNotifier.value = downloadedBytes / contentLength;
         }
       });
+
       await subscription.asFuture();
       Navigator.pop(context);
       client.close();
+
+      // حفظ الملف
       final Directory dir = await getApplicationSupportDirectory();
       final File file = File('${dir.path}/${supp.title}.mp3');
       await file.writeAsBytes(bytes);
+
       setState(() {
         supp.isDownloaded = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم تحميل ${supp.title} بنجاح!')));
+        SnackBar(content: Text('تم تحميل ${supp.title} بنجاح!')),
+      );
     } catch (e) {
-      Navigator.pop(context);
+      Navigator.pop(context); // إغلاق حوار التحميل
       print("Download error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('حدث خطأ أثناء التحميل أعد المحاولة.')));
+        const SnackBar(content: Text('حدث خطأ أثناء التحميل أعد المحاولة.')),
+      );
     }
   }
 
@@ -1411,8 +1444,9 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                TextReaderPage(title: supp.title, content: content)),
+          builder: (context) =>
+              TextReaderPage(title: supp.title, content: content),
+        ),
       );
     } catch (e) {
       print("Error loading text: $e");
@@ -1424,6 +1458,7 @@ class _HomePageState extends State<HomePage> {
   /// التحقق من عدد الاستخدامات وعرض إعلان انتقالي عند الحاجة
   void checkAndShowInterstitialAd() {
     _usageCounter++;
+    // مثال: عرض إعلان بعد كل 5 تشغيلات
     if (_usageCounter >= 5 && _interstitialAd != null) {
       _interstitialAd!.show();
       _usageCounter = 0;
@@ -1452,8 +1487,7 @@ class _HomePageState extends State<HomePage> {
   void _rewind10() {
     final Duration current = _audioPlayer.position;
     final Duration newPosition = current - const Duration(seconds: 10);
-    _audioPlayer
-        .seek(newPosition < Duration.zero ? Duration.zero : newPosition);
+    _audioPlayer.seek(newPosition < Duration.zero ? Duration.zero : newPosition);
   }
 
   void _forward10() {
@@ -1483,6 +1517,7 @@ class _HomePageState extends State<HomePage> {
     final List<Supplication> currentList = _selectedCategory == "المفضلة"
         ? favorites
         : audioCategories[_selectedCategory] ?? [];
+
     setState(() {
       filteredSupplications = query.isNotEmpty
           ? currentList.where((item) => item.title.contains(query)).toList()
@@ -1531,8 +1566,9 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("حسناً")),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("حسناً"),
+          ),
         ],
       ),
     );
@@ -1546,22 +1582,23 @@ class _HomePageState extends State<HomePage> {
         content: SingleChildScrollView(
           child: const Text(
             'مرحباً بك في تطبيق مشاري العفاسي.\n\n'
-            'كيفية الاستخدام:\n'
-            '1. استخدم القائمة الجانبية لتحديد قسم الصوتيات (مثل القرآن الكريم، الأناشيد، الأذكار، الأدعية، الرقية الشرعية).\n'
-            '2. استخدم حقل البحث لتصفية قائمة الصوتيات ضمن القسم المحدد.\n'
-            '3. اضغط على زر التشغيل لتشغيل الصوت، وفي حال كان الصوت غير محمّل يتم استخراج الصوت أو تشغيل الصوت المحلي بدون إنترنت.\n'
-            '4. يمكنك تنزيل الصوت للاستماع دون إنترنت عبر زر التنزيل (إذا لم يكن الصوت محلياً)، وإذا كان الصوت متاحاً بالفعل سيظهر زر التحميل باللون الرمادي.\n'
-            '5. عند تشغيل الصوت يظهر مشغل في أسفل الشاشة يحتوي على شريط تمرير للتحكم بموقع التشغيل وأزرار للتحكم (السابق، إعادة 10 ثوانٍ، تشغيل/إيقاف، تقديم 10 ثوانٍ، التالي) مع زر (×) لإغلاق المشغل.\n'
-            '6. اضغط على زر "قراءة" لفتح صفحة قراءة النص مع إمكانية تكبير وتصغير الخط.\n'
-            '7. لإضافة الصوتيات إلى المفضلة، استخدم أيقونة القلب في قائمة الصوتيات. ولعرض قائمة المفضلة، اختر "المفضلة" من القائمة الجانبية.\n'
-            '8. لدعم التطبيق، يمكنك مشاهدة إعلان المكافآت عبر الضغط على أيقونة القلب في شريط التطبيق.\n',
+                'كيفية الاستخدام:\n'
+                '1. استخدم القائمة الجانبية لتحديد قسم الصوتيات (مثل القرآن الكريم، الأناشيد، الأذكار، الأدعية، الرقية الشرعية).\n'
+                '2. استخدم حقل البحث لتصفية قائمة الصوتيات ضمن القسم المحدد.\n'
+                '3. اضغط على زر التشغيل لتشغيل الصوت، وفي حال كان الصوت غير محمّل يتم استخراج الصوت أو تشغيل الصوت المحلي بدون إنترنت.\n'
+                '4. يمكنك تنزيل الصوت للاستماع دون إنترنت عبر زر التنزيل (إذا لم يكن الصوت محلياً)، وإذا كان الصوت متاحاً بالفعل سيظهر زر التحميل باللون الرمادي.\n'
+                '5. عند تشغيل الصوت يظهر مشغل في أسفل الشاشة يحتوي على شريط تمرير للتحكم بموقع التشغيل وأزرار للتحكم (السابق، إعادة 10 ثوانٍ، تشغيل/إيقاف، تقديم 10 ثوانٍ، التالي) مع زر (×) لإغلاق المشغل.\n'
+                '6. اضغط على زر "قراءة" لفتح صفحة قراءة النص مع إمكانية تكبير وتصغير الخط.\n'
+                '7. لإضافة الصوتيات إلى المفضلة، استخدم أيقونة القلب في قائمة الصوتيات. ولعرض قائمة المفضلة، اختر "المفضلة" من القائمة الجانبية.\n'
+                '8. لدعم التطبيق، يمكنك مشاهدة إعلان المكافآت عبر الضغط على أيقونة القلب في شريط التطبيق.\n',
             textDirection: TextDirection.rtl,
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('حسناً')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('حسناً'),
+          ),
         ],
       ),
     );
@@ -1650,10 +1687,14 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(formatDuration(position),
-                            style: const TextStyle(color: Colors.white)),
-                        Text(formatDuration(duration),
-                            style: const TextStyle(color: Colors.white)),
+                        Text(
+                          formatDuration(position),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          formatDuration(duration),
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                   ],
@@ -1675,7 +1716,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 4),
-            // صف أزرار التحكم في التشغيل (السابق، إعادة 10 ثوانٍ، تشغيل/إيقاف، تقديم 10 ثوانٍ، التالي)
+            // صف أزرار التحكم في التشغيل
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -1710,7 +1751,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 4),
-            // صف يحتوي على مفاتيح التبديل للخصائص الإضافية (التكرار وتشغيل التالي تلقائي)
+            // صف مفاتيح التبديل (التكرار، تشغيل التالي تلقائي)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1772,9 +1813,11 @@ class _HomePageState extends State<HomePage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(appBarTitle,
-              style:
-                  const TextStyle(fontFamily: 'Tajawal', color: Colors.white)),
+          title: Text(
+            appBarTitle,
+            style:
+            const TextStyle(fontFamily: 'Tajawal', color: Colors.white),
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.info_outline, color: Colors.white),
@@ -1809,118 +1852,97 @@ class _HomePageState extends State<HomePage> {
             children: [
               DrawerHeader(
                 decoration:
-                    BoxDecoration(color: Theme.of(context).primaryColor),
+                BoxDecoration(color: Theme.of(context).primaryColor),
                 child: const Center(
-                  child: Text('الشيخ مشاري العفاسي',
-                      style: TextStyle(color: Colors.white, fontSize: 24)),
+                  child: Text(
+                    'الشيخ مشاري العفاسي',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
                 ),
               ),
               ListTile(
                 leading:
-                    Icon(Icons.book, color: Theme.of(context).primaryColor),
+                Icon(Icons.book, color: Theme.of(context).primaryColor),
                 title: const Text("القرآن الكريم"),
-                onTap: () {
-                  updateCategory("القرآن الكريم");
-                },
+                onTap: () => updateCategory("القرآن الكريم"),
               ),
               ListTile(
-                leading: Icon(Icons.music_note,
-                    color: Theme.of(context).primaryColor),
+                leading:
+                Icon(Icons.music_note, color: Theme.of(context).primaryColor),
                 title: const Text("الأناشيد"),
-                onTap: () {
-                  updateCategory("الأناشيد");
-                },
+                onTap: () => updateCategory("الأناشيد"),
               ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.personPraying,
                     color: Theme.of(context).primaryColor),
                 title: const Text("الأذكار"),
-                onTap: () {
-                  updateCategory("الأذكار");
-                },
+                onTap: () => updateCategory("الأذكار"),
               ),
               ListTile(
                 leading: Icon(Icons.front_hand,
                     color: Theme.of(context).primaryColor),
                 title: const Text("الأدعية"),
-                onTap: () {
-                  updateCategory("الأدعية");
-                },
+                onTap: () => updateCategory("الأدعية"),
               ),
               ListTile(
-                leading: Icon(Icons.dark_mode,
-                    color: Theme.of(context).primaryColor),
+                leading:
+                Icon(Icons.dark_mode, color: Theme.of(context).primaryColor),
                 title: const Text("رمضانيات"),
-                onTap: () {
-                  updateCategory("رمضانيات");
-                },
+                onTap: () => updateCategory("رمضانيات"),
               ),
               ListTile(
                 leading:
-                    Icon(Icons.healing, color: Theme.of(context).primaryColor),
+                Icon(Icons.healing, color: Theme.of(context).primaryColor),
                 title: const Text("الرقية الشرعية"),
-                onTap: () {
-                  updateCategory("الرقية الشرعية");
-                },
+                onTap: () => updateCategory("الرقية الشرعية"),
               ),
               ListTile(
                 leading:
-                    Icon(Icons.favorite, color: Theme.of(context).primaryColor),
+                Icon(Icons.favorite, color: Theme.of(context).primaryColor),
                 title: const Text("المفضلة"),
-                onTap: () {
-                  updateCategory("المفضلة");
-                },
+                onTap: () => updateCategory("المفضلة"),
               ),
               const Divider(),
               ListTile(
-                leading: Icon(Icons.volunteer_activism, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.volunteer_activism,
+                    color: Theme.of(context).primaryColor),
                 title: const Text("ادعم التطبيق"),
                 onTap: () {
-                  Navigator.pop(context); // إغلاق القائمة الجانبية
-                  confirmAndShowRewardedAd(); // دالة موجودة عندك لعرض الإعلان
+                  Navigator.pop(context);
+                  confirmAndShowRewardedAd();
                 },
               ),
-
               ListTile(
                 leading:
-                    Icon(Icons.alarm_on, color: Theme.of(context).primaryColor),
+                Icon(Icons.alarm_on, color: Theme.of(context).primaryColor),
                 title: const Text("منبة الأذكار"),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AdhkarReminderPage()),
+                      builder: (context) => const AdhkarReminderPage(),
+                    ),
                   );
                 },
               ),
-              // ListTile(
-              //   leading:
-              //       Icon(Icons.task, color: Theme.of(context).primaryColor),
-              //   title: const Text("تذكيرات رمضان"),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => RamadanTasksPage()),
-              //     );
-              //   },
-              // ),
               ListTile(
                 leading:
-                    Icon(Icons.mosque, color: Theme.of(context).primaryColor),
+                Icon(Icons.mosque, color: Theme.of(context).primaryColor),
                 title: const Text("أوقات الصلاة"),
                 onTap: () {
-                  Navigator.pop(context); // إغلاق القائمة الجانبية
+                  Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const PrayerTimesPage()),
+                      builder: (context) => const PrayerTimesPage(),
+                    ),
                   );
                 },
               ),
               ListTile(
-                leading: Icon(Icons.spa, color: Theme.of(context).primaryColor),
+                leading:
+                Icon(Icons.spa, color: Theme.of(context).primaryColor),
                 title: const Text("المسبحة الإلكترونية"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1932,8 +1954,27 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(),
               ListTile(
+                leading: Icon(Icons.star, color: Theme.of(context).primaryColor),
+                title: const Text("قيّم التطبيق"),
+                onTap: () async {
+                  Navigator.pop(context); // لإغلاق القائمة الجانبية
+                  // هذا مثال لرابط متجر Google Play؛ عدّله وفق رابط تطبيقك
+                  final Uri uri = Uri.parse(
+                    'https://play.google.com/store/apps/details?id=com.azkar.doaa.alafasi',
+                  );
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    // يمكنك إظهار رسالة في حال لم ينجح الرابط
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('لا يمكن فتح صفحة التقييم.')),
+                    );
+                  }
+                },
+              ),
+              ListTile(
                 leading:
-                    Icon(Icons.shop, color: Theme.of(context).primaryColor),
+                Icon(Icons.shop, color: Theme.of(context).primaryColor),
                 title: const Text("تطبيق القرآن الكريم"),
                 onTap: () async {
                   Navigator.pop(context);
@@ -1950,7 +1991,7 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 leading:
-                    Icon(Icons.help, color: Theme.of(context).primaryColor),
+                Icon(Icons.help, color: Theme.of(context).primaryColor),
                 title: const Text("تعليمات الاستخدام"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1971,6 +2012,7 @@ class _HomePageState extends State<HomePage> {
         ),
         body: Column(
           children: [
+            // مربع البحث
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -1983,21 +2025,23 @@ class _HomePageState extends State<HomePage> {
                 onChanged: filterSearchResults,
               ),
             ),
+            // قائمة العناصر + إعلانات
             Expanded(
               child: ListView.builder(
-                itemCount: filteredSupplications.length + (filteredSupplications.length ~/ 3),
-                // +1 for the ad
+                // نزيد العدد لإدراج إعلانات بين العناصر
+                itemCount: filteredSupplications.length +
+                    (filteredSupplications.length ~/ 3),
                 itemBuilder: (context, index) {
-                  // Show ad after every 10 items
+                  // عرض إعلان كل 4 عناصر تقريباً
                   if (index > 0 && index % 4 == 0) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: NativeAdWidget(),
                     );
                   }
-                  
-                  // Adjust index to account for ad insertions
-                  final int itemIndex = index - (index ~/ 10);
+
+                  // تعويض الفروقات التي سببتها الإعلانات
+                  final int itemIndex = index - (index ~/ 4);
 
                   // حماية إضافية لو حصل index خارج النطاق
                   if (itemIndex >= filteredSupplications.length) {
@@ -2007,10 +2051,13 @@ class _HomePageState extends State<HomePage> {
                   final Supplication supp = filteredSupplications[itemIndex];
 
                   return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    margin:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       onTap: () {
+                        // في حالة كان نفس الملف يشغل حالياً
                         if (_currentSupplication != null &&
                             _currentSupplication!.title == supp.title &&
                             _audioPlayer.playing) {
@@ -2020,10 +2067,10 @@ class _HomePageState extends State<HomePage> {
                           checkAndShowInterstitialAd();
                         }
                       },
-                      // ← أيقونة على يمين العنوان داخل دائرة
                       leading: CircleAvatar(
                         radius: 20,
-                        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                        backgroundColor:
+                        Theme.of(context).primaryColor.withOpacity(0.1),
                         child: Icon(
                           supp.icon,
                           color: Theme.of(context).primaryColor,
@@ -2050,7 +2097,8 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(
                               _currentSupplication != null &&
-                                  _currentSupplication!.title == supp.title &&
+                                  _currentSupplication!.title ==
+                                      supp.title &&
                                   _audioPlayer.playing
                                   ? Icons.pause
                                   : Icons.play_arrow,
@@ -2079,8 +2127,9 @@ class _HomePageState extends State<HomePage> {
                                 ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content:
-                                    Text('الصوت متاح بالفعل دون إنترنت.')),
+                                  content: Text(
+                                      'الصوت متاح بالفعل دون إنترنت.'),
+                                ),
                               );
                             }
                                 : () {
@@ -2097,13 +2146,16 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onPressed: () {
                               setState(() {
-                                if (favorites.any((fav) => fav.title == supp.title)) {
-                                  favorites.removeWhere((fav) => fav.title == supp.title);
+                                if (favorites.any(
+                                        (fav) => fav.title == supp.title)) {
+                                  favorites.removeWhere(
+                                          (fav) => fav.title == supp.title);
                                 } else {
                                   favorites.add(supp);
                                 }
                                 if (_selectedCategory == "المفضلة") {
-                                  filteredSupplications = List<Supplication>.from(favorites);
+                                  filteredSupplications =
+                                  List<Supplication>.from(favorites);
                                 }
                               });
                               saveFavorites();
@@ -2115,7 +2167,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-
               ),
             ),
             if (_bannerAd != null)
@@ -2127,7 +2178,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         bottomNavigationBar:
-            _currentSupplication != null ? _buildAudioPlayer() : null,
+        _currentSupplication != null ? _buildAudioPlayer() : null,
       ),
     );
   }
@@ -2151,16 +2202,21 @@ class _TextReaderPageState extends State<TextReaderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title,
-            style: const TextStyle(fontFamily: 'Tajawal', color: Colors.white)),
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontFamily: 'Tajawal', color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: Text(widget.content,
-                  style: TextStyle(fontSize: _fontSize, fontFamily: 'Tajawal')),
+              child: Text(
+                widget.content,
+                style:
+                TextStyle(fontSize: _fontSize, fontFamily: 'Tajawal'),
+              ),
             ),
           ),
           Container(
@@ -2183,10 +2239,13 @@ class _TextReaderPageState extends State<TextReaderPage> {
                         children: const [
                           Icon(Icons.zoom_out, color: Colors.white),
                           SizedBox(width: 8),
-                          Text("تصغير",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            "تصغير",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -2208,10 +2267,13 @@ class _TextReaderPageState extends State<TextReaderPage> {
                         children: const [
                           Icon(Icons.zoom_in, color: Colors.white),
                           SizedBox(width: 8),
-                          Text("تكبير",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            "تكبير",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -2293,92 +2355,3 @@ class AppLifecycleReactor extends WidgetsBindingObserver {
     }
   }
 }
-
-/////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-///////////////////////////////////////////////////
-// lib/main.dart
-
-// import 'package:flutter/material.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'theme/app_theme.dart';
-// import 'managers/notifications_manager.dart';
-// import 'managers/ad_manager.dart';
-// import 'managers/app_open_ad_manager.dart';
-// import 'pages/home_page.dart';
-
-// final GlobalKey<MyAppState> myAppKey = GlobalKey<MyAppState>();
-// final AppOpenAdManager appOpenAdManager = AppOpenAdManager();
-// late AppLifecycleReactor _appLifecycleReactor;
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   // تهيئة Firebase
-//   await Firebase.initializeApp();
-//   await NotificationsManager.initialize();
-
-//   // تهيئة الإعلانات
-//   await AdManager.initConsentForAds();
-//   await AdManager.initializeAds();
-//   appOpenAdManager.loadAd(); // تحميل إعلان الفتح (App Open)
-
-//   // ربط مراقبة دورة حياة التطبيق بإعلان الفتح
-//   _appLifecycleReactor = AppLifecycleReactor(appOpenAdManager);
-//   WidgetsBinding.instance.addObserver(_appLifecycleReactor);
-
-//   runApp(MyApp(key: myAppKey));
-// }
-
-// class MyApp extends StatefulWidget {
-//   const MyApp({Key? key}) : super(key: key);
-
-//   @override
-//   MyAppState createState() => MyAppState();
-// }
-
-// class MyAppState extends State<MyApp> {
-//   bool _isDarkMode = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadTheme();
-//   }
-
-//   Future<void> _loadTheme() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final savedTheme = prefs.getBool('isDarkMode') ?? false;
-//     setState(() {
-//       _isDarkMode = savedTheme;
-//     });
-//   }
-
-//   void toggleTheme() async {
-//     setState(() {
-//       _isDarkMode = !_isDarkMode;
-//     });
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.setBool('isDarkMode', _isDarkMode);
-//   }
-
-//   bool get isDarkMode => _isDarkMode;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'تطبيق مشاري العفاسي',
-//       debugShowCheckedModeBanner: false,
-//       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-//       theme: AppTheme.lightTheme,
-//       darkTheme: AppTheme.darkTheme,
-//       locale: const Locale('ar', 'AE'),
-//       supportedLocales: const [Locale('ar', 'AE')],
-//       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-//       home: HomePage(isDarkMode: _isDarkMode),
-//     );
-//   }
-// }

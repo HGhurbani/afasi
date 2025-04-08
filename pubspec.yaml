@@ -1,7 +1,7 @@
 name: azkar
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.24+26
+version: 1.0.25+27
 
 environment:
   sdk: ^3.6.0
