@@ -14,7 +14,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'RamadanPage.dart';
 import 'TasbihPage.dart';
 import 'AdhkarReminderPage.dart';
 import 'getCurrentLocation.dart';
@@ -44,10 +43,7 @@ Future<void> main() async {
   
   // Initialize Mobile Ads SDK
   await MobileAds.instance.initialize();
-  // Set test device IDs for testing
-  MobileAds.instance.updateRequestConfiguration(
-    RequestConfiguration(testDeviceIds: ['ABCDEF123456']), // Replace with your test device ID
-  );
+
 
   runApp(MyApp(key: myAppKey));
 }
@@ -1989,10 +1985,11 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: filteredSupplications.length + 1, // +1 for the ad
+                itemCount: filteredSupplications.length + (filteredSupplications.length ~/ 3),
+                // +1 for the ad
                 itemBuilder: (context, index) {
                   // Show ad after every 10 items
-                  if (index > 0 && index % 10 == 0) {
+                  if (index > 0 && index % 4 == 0) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: NativeAdWidget(),
@@ -2000,13 +1997,14 @@ class _HomePageState extends State<HomePage> {
                   }
                   
                   // Adjust index to account for ad insertions
-                  final itemIndex = index - (index ~/ 10);
+                  final int itemIndex = index - (index ~/ 10);
+
+                  // حماية إضافية لو حصل index خارج النطاق
                   if (itemIndex >= filteredSupplications.length) {
-                    return null;
+                    return const SizedBox.shrink();
                   }
-                  
+
                   final Supplication supp = filteredSupplications[itemIndex];
-                  final Supplication supp = filteredSupplications[index];
 
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
