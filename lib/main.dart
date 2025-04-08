@@ -14,7 +14,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'RamadanPage.dart';
 import 'TasbihPage.dart';
 import 'AdhkarReminderPage.dart';
 import 'getCurrentLocation.dart';
@@ -2219,91 +2218,3 @@ class AppLifecycleReactor extends WidgetsBindingObserver {
   }
 }
 
-/////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-///////////////////////////////////////////////////
-// lib/main.dart
-
-// import 'package:flutter/material.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'theme/app_theme.dart';
-// import 'managers/notifications_manager.dart';
-// import 'managers/ad_manager.dart';
-// import 'managers/app_open_ad_manager.dart';
-// import 'pages/home_page.dart';
-
-// final GlobalKey<MyAppState> myAppKey = GlobalKey<MyAppState>();
-// final AppOpenAdManager appOpenAdManager = AppOpenAdManager();
-// late AppLifecycleReactor _appLifecycleReactor;
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   // تهيئة Firebase
-//   await Firebase.initializeApp();
-//   await NotificationsManager.initialize();
-
-//   // تهيئة الإعلانات
-//   await AdManager.initConsentForAds();
-//   await AdManager.initializeAds();
-//   appOpenAdManager.loadAd(); // تحميل إعلان الفتح (App Open)
-
-//   // ربط مراقبة دورة حياة التطبيق بإعلان الفتح
-//   _appLifecycleReactor = AppLifecycleReactor(appOpenAdManager);
-//   WidgetsBinding.instance.addObserver(_appLifecycleReactor);
-
-//   runApp(MyApp(key: myAppKey));
-// }
-
-// class MyApp extends StatefulWidget {
-//   const MyApp({Key? key}) : super(key: key);
-
-//   @override
-//   MyAppState createState() => MyAppState();
-// }
-
-// class MyAppState extends State<MyApp> {
-//   bool _isDarkMode = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadTheme();
-//   }
-
-//   Future<void> _loadTheme() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final savedTheme = prefs.getBool('isDarkMode') ?? false;
-//     setState(() {
-//       _isDarkMode = savedTheme;
-//     });
-//   }
-
-//   void toggleTheme() async {
-//     setState(() {
-//       _isDarkMode = !_isDarkMode;
-//     });
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.setBool('isDarkMode', _isDarkMode);
-//   }
-
-//   bool get isDarkMode => _isDarkMode;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'تطبيق مشاري العفاسي',
-//       debugShowCheckedModeBanner: false,
-//       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-//       theme: AppTheme.lightTheme,
-//       darkTheme: AppTheme.darkTheme,
-//       locale: const Locale('ar', 'AE'),
-//       supportedLocales: const [Locale('ar', 'AE')],
-//       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-//       home: HomePage(isDarkMode: _isDarkMode),
-//     );
-//   }
-// }
