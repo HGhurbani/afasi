@@ -69,7 +69,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   void _loadAd() {
     _nativeAd = NativeAd(
-      adUnitId: 'ca-app-pub-7223999276472548/6597309308',
+      adUnitId: 'ca-app-pub-7223999276472548/6597309308', // Production Ad Unit ID
       factoryId: 'listTile',
       request: const AdRequest(),
       listener: NativeAdListener(

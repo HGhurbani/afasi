@@ -14,7 +14,7 @@
 
     <meta-data
     android:name="com.google.android.gms.ads.APPLICATION_ID"
-    android:value="ca-app-pub-7223999276472548~3940256099942544"/>
+    android:value="ca-app-pub-7223999276472548~4131250499"/>
 <application
         android:label="أذكار وأدعية العفاسي"
         android:name="${applicationName}"
