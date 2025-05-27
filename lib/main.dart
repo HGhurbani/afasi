@@ -26,6 +26,8 @@ import 'package:user_messaging_platform/user_messaging_platform.dart' as UMP;
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'wallpapers_page.dart';
+
 final GlobalKey<MyAppState> myAppKey = GlobalKey<MyAppState>();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -311,6 +313,72 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isAutoNext = false;
+  Timer? _sleepTimer;
+  int? _sleepMinutes; // عدد الدقائق المحددة
+
+
+
+  void showSleepTimerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        int selectedMinutes = 15;
+        return AlertDialog(
+          title: Text('مؤقت النوم'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('اختر المدة قبل إيقاف الصوت:'),
+              DropdownButton<int>(
+                value: selectedMinutes,
+                items: [5, 10, 15, 30, 45, 60]
+                    .map((min) => DropdownMenuItem(
+                  child: Text('$min دقيقة'),
+                  value: min,
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  selectedMinutes = value!;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('إلغاء'),
+            ),
+            TextButton(
+              onPressed: () {
+                setSleepTimer(selectedMinutes);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('سيتم إيقاف الصوت بعد $selectedMinutes دقيقة')),
+                );
+              },
+              child: Text('تفعيل'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void setSleepTimer(int minutes) {
+    _sleepTimer?.cancel(); // إلغاء أي مؤقت سابق
+    _sleepMinutes = minutes;
+    _sleepTimer = Timer(Duration(minutes: minutes), () {
+      _audioPlayer.stop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تم إيقاف الصوت بعد $_sleepMinutes دقيقة')),
+      );
+      _sleepTimer = null;
+    });
+  }
+
 
   // حفظ قائمة المفضلة باستخدام shared_preferences
   Future<void> saveFavorites() async {
@@ -1054,6 +1122,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _interstitialAd?.dispose();
     _rewardedAd?.dispose();
     _searchController.dispose();
+    _sleepTimer?.cancel();
     super.dispose();
   }
 
@@ -1702,19 +1771,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               },
             ),
             const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                if (_currentSupplication != null) {
-                  readText(_currentSupplication!);
-                }
-              },
-              icon: const Icon(Icons.menu_book),
-              label: const Text("قراءة"),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor,
-                backgroundColor: Colors.white,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (_currentSupplication != null) {
+                      readText(_currentSupplication!);
+                    }
+                  },
+                  icon: const Icon(Icons.menu_book),
+                  label: const Text("قراءة"),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12), // مسافة بين الزرين
+                ElevatedButton.icon(
+                  onPressed: showSleepTimerDialog,
+                  icon: const Icon(Icons.timer),
+                  label: const Text("مؤقت النوم"),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
+
             const SizedBox(height: 4),
             // صف أزرار التحكم في التشغيل
             Row(
@@ -1760,8 +1845,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   onChanged: (bool value) {
                     setState(() {
                       _isRepeat = value;
-                      _audioPlayer
-                          .setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
+                      _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
                     });
                   },
                   activeColor: accentBlue,
@@ -1798,8 +1882,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
               ],
             ),
+
           ],
         ),
       ),
@@ -1904,12 +1990,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               const Divider(),
               ListTile(
-                leading: Icon(Icons.volunteer_activism,
-                    color: Theme.of(context).primaryColor),
-                title: const Text("ادعم التطبيق"),
+                leading: Icon(Icons.image, color: Theme.of(context).primaryColor),
+                title: const Text("الصور والخلفيات"),
                 onTap: () {
                   Navigator.pop(context);
-                  confirmAndShowRewardedAd();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WallpapersPage()),
+                  );
                 },
               ),
               ListTile(
@@ -1950,6 +2038,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     context,
                     MaterialPageRoute(builder: (context) => const TasbihPage()),
                   );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.volunteer_activism,
+                    color: Theme.of(context).primaryColor),
+                title: const Text("ادعم التطبيق"),
+                onTap: () {
+                  Navigator.pop(context);
+                  confirmAndShowRewardedAd();
                 },
               ),
               const Divider(),
