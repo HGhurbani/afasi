@@ -140,7 +140,7 @@ This project is licensed under the MIT License. See the `LICENSE` file (if prese
 
 ## 📞 Contact
 
--   **Developer:** Hazem Al-Hatti
+-   **Developer:** Hazem Al-Ghurbani
 -   **Email:** hazemhataki@gmail.com
 
 ---
