@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -37,6 +38,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.afasi.audio',
+    androidNotificationChannelName: 'Audio Playback',
+    androidNotificationOngoing: true,
+  );
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -1261,7 +1267,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     // إذا كان الصوت متوفرًا محليًا:
     if (supp.isLocalAudio) {
       try {
-        await _audioPlayer.setAsset(supp.audioUrl);
+        await _audioPlayer.setAudioSource(
+          AudioSource.asset(
+            supp.audioUrl,
+            tag: MediaItem(id: supp.audioUrl, title: supp.title),
+          ),
+        );
         _audioPlayer.play();
         return;
       } catch (e) {
@@ -1278,7 +1289,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (await File(filePath).exists()) {
       supp.isDownloaded = true;
       try {
-        await _audioPlayer.setFilePath(filePath);
+        await _audioPlayer.setAudioSource(
+          AudioSource.file(
+            filePath,
+            tag: MediaItem(id: filePath, title: supp.title),
+          ),
+        );
         _audioPlayer.play();
         return;
       } catch (e) {
@@ -1336,7 +1352,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     // تشغيل الصوت
     try {
-      await _audioPlayer.setUrl(source);
+      await _audioPlayer.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(source),
+          tag: MediaItem(id: source, title: supp.title),
+        ),
+      );
       _audioPlayer.play();
     } catch (e) {
       print("Error playing audio: $e");
