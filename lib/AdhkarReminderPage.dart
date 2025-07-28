@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'AdhkarReminderManager.dart';
 
 class AdhkarReminderPage extends StatefulWidget {
@@ -31,6 +32,12 @@ class _AdhkarReminderPageState extends State<AdhkarReminderPage> {
       final status = await Permission.notification.request();
       debugPrint("Notification permission status: $status");
     }
+
+    // اطلب الإذن أيضاً من flutter_local_notifications في حال كان مطلوباً
+    await AdhkarReminderManager.flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestPermission();
   }
 
   Future<void> loadSettings() async {
