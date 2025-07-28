@@ -27,6 +27,7 @@ The "Azkar Alafasi App" is a comprehensive application developed using Flutter, 
     - Playback controls (forward, rewind, pause, play).
     - **Sleep Timer:** Set a timer to automatically stop audio playback after a specified duration.
     - **Auto-Next & Repeat:** Options to automatically play the next track or repeat the current track.
+    - **Background Playback:** Continue listening even when the app is in the background with a notification control.
 - **❤️ Favorites:** Add your preferred audio tracks to a favorites list for quick access.
 - **🔍 Search:** Easily search for any Dhikr, Dua, or Nasheed within the different categories.
 - **🎨 Customizable Interface:**
@@ -49,6 +50,7 @@ The "Azkar Alafasi App" is a comprehensive application developed using Flutter, 
 - **State Management:** (Please specify the state management approach used if clear from the code, e.g., Provider, BLoC, Riverpod, GetX, setState)
 - **Audio:**
     - `just_audio`: For audio playback.
+    - `just_audio_background`: Enables background audio with notification controls.
     - `youtube_explode_dart`: To extract audio links from YouTube.
 - **Notifications:**
     - `flutter_local_notifications`: For local notifications (Azkar reminders, prayer times).

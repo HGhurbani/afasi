@@ -18,6 +18,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   shared_preferences: ^2.5.1
   just_audio: ^0.9.45
+  just_audio_background: ^0.0.1
   flutter_localization: ^0.3.1
   firebase_core: ^3.11.0
   firebase_messaging: ^15.2.2
