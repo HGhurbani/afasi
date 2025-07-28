@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "926871283130",
+    "project_id": "alafasi-76545",
+    "storage_bucket": "alafasi-76545.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:926871283130:android:1f8faa03b728d9b7d96983",
+        "android_client_info": {
+          "package_name": "com.azkar.doaa.alafasi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZepbQPM-t2xRB1RfH_jjWmSdT5xIKkQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
