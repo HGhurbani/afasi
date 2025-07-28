@@ -31,7 +31,8 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   xml: ^6.5.0
   share_plus: ^11.0.0
-  wallpaper_manager_flutter: ^0.0.2
+  wallpaper_manager_flutter:
+    path: packages/wallpaper_manager_flutter
   flutter_bloc: ^8.1.5
   equatable: ^2.0.5
   get_it: ^7.6.7

@@ -1229,11 +1229,10 @@ packages:
   wallpaper_manager_flutter:
     dependency: "direct main"
     description:
-      name: wallpaper_manager_flutter
-      sha256: "37286f08293ec62590448599b7dc3b94b11ee1175ab7b0e33cbf6b79fbfcba42"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
+      path: packages/wallpaper_manager_flutter
+      relative: true
+    source: path
+    version: "0.0.1"
   watcher:
     dependency: transitive
     description:
