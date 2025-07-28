@@ -34,10 +34,20 @@ class _AdhkarReminderPageState extends State<AdhkarReminderPage> {
     }
 
     // اطلب الإذن أيضاً من flutter_local_notifications في حال كان مطلوباً
-    await AdhkarReminderManager.flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestPermission();
+    final androidPlugin =
+        AdhkarReminderManager.flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) {
+      try {
+        // Some versions of flutter_local_notifications may not expose
+        // `requestPermission`, so call it dynamically if available.
+        // ignore: avoid_dynamic_calls
+        await (androidPlugin as dynamic).requestPermission();
+      } catch (e) {
+        debugPrint('requestPermission not available: $e');
+      }
+    }
   }
 
   Future<void> loadSettings() async {
