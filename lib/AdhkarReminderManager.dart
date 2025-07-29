@@ -11,10 +11,13 @@ class AdhkarReminderManager {
   static Future<void> initialize() async {
     tz.initializeTimeZones();
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings(
-            '@mipmap/ic_launcher'); // تأكد من تعيين أيقونة صحيحة
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings();
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -39,7 +42,7 @@ class AdhkarReminderManager {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
     debugPrint("Scheduled notification $id at: $scheduledDate");
-    var androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'adhkar_channel',
       'أذكار',
       channelDescription: 'تذكيرات أذكار الصباح والمساء',
@@ -48,7 +51,11 @@ class AdhkarReminderManager {
       sound: RawResourceAndroidNotificationSound(sound.replaceAll('.mp3', '')),
       playSound: true,
     );
-    var notificationDetails = NotificationDetails(android: androidDetails);
+    const darwinDetails = DarwinNotificationDetails(presentAlert: true);
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+    );
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
