@@ -1,0 +1,41 @@
+lib/features/audio/pages/home_page.dart:7:8: Error: Error when reading 'lib/features/audio/widgets/audio_player_widget.dart': The system cannot find the path specified.
+
+import '../widgets/audio_player_widget.dart';
+       ^
+lib/features/audio/pages/home_page.dart:8:8: Error: Error when reading 'lib/features/audio/widgets/supplication_card.dart': The system cannot find the path specified.
+
+import '../widgets/supplication_card.dart';
+       ^
+lib/features/audio/pages/home_page.dart:9:8: Error: Error when reading 'lib/features/audio/widgets/search_bar_widget.dart': The system cannot find the path specified.
+
+import '../widgets/search_bar_widget.dart';
+       ^
+lib/features/audio/pages/home_page.dart:10:8: Error: Error when reading 'lib/features/audio/widgets/drawer_widget.dart': The system cannot find the path specified.
+
+import '../widgets/drawer_widget.dart';
+       ^
+lib/features/audio/pages/home_page.dart:11:8: Error: Error when reading 'lib/features/audio/widgets/native_ad_widget.dart': The system cannot find the path specified.
+
+import '../widgets/native_ad_widget.dart';
+       ^
+lib/features/audio/pages/home_page.dart:55:23: Error: Couldn't find constructor 'DrawerWidget'.
+        drawer: const DrawerWidget(),
+                      ^^^^^^^^^^^^
+lib/features/audio/pages/home_page.dart:95:36: Error: Method not found: 'NativeAdWidget'.
+                            child: NativeAdWidget(),
+                                   ^^^^^^^^^^^^^^
+lib/features/audio/pages/home_page.dart:81:19: Error: The method 'SearchBarWidget' isn't defined for the class 'HomePage'.
+ - 'HomePage' is from 'package:azkar/features/audio/pages/home_page.dart' ('lib/features/audio/pages/home_page.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'SearchBarWidget'.
+                  SearchBarWidget(
+                  ^^^^^^^^^^^^^^^
+lib/features/audio/pages/home_page.dart:105:32: Error: The method 'SupplicationCard' isn't defined for the class 'HomePage'.
+ - 'HomePage' is from 'package:azkar/features/audio/pages/home_page.dart' ('lib/features/audio/pages/home_page.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'SupplicationCard'.
+                        return SupplicationCard(
+                               ^^^^^^^^^^^^^^^^
+lib/features/audio/pages/home_page.dart:130:22: Error: The method 'AudioPlayerWidget' isn't defined for the class 'HomePage'.
+ - 'HomePage' is from 'package:azkar/features/audio/pages/home_page.dart' ('lib/features/audio/pages/home_page.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'AudioPlayerWidget'.
+              return AudioPlayerWidget(
+                     ^^^^^^^^^^^^^^^^^
