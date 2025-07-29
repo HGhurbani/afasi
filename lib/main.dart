@@ -1167,12 +1167,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        content: Row(
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 20),
-            Expanded(child: Text(message, textDirection: TextDirection.rtl)),
-          ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Container(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Text(
+                  message,
+                  textDirection: TextDirection.rtl,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1604,6 +1616,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return "$minutes:$seconds";
   }
 
+  Widget _buildControlButton(IconData icon, VoidCallback onPressed, String tooltip) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white, size: 20),
+        onPressed: onPressed,
+        tooltip: tooltip,
+      ),
+    );
+  }
+
   void filterSearchResults(String query) {
     final List<Supplication> currentList = _selectedCategory == "المفضلة"
         ? favorites
@@ -1722,8 +1750,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Container(
-        color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withOpacity(0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1732,23 +1776,44 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    _currentSupplication?.title ?? '',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _currentSupplication?.title ?? '',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'الشيخ مشاري العفاسي',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _currentSupplication = null;
-                    });
-                  },
-                  tooltip: 'إغلاق المشغل',
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                    onPressed: () {
+                      setState(() {
+                        _currentSupplication = null;
+                      });
+                    },
+                    tooltip: 'إغلاق المشغل',
+                  ),
                 ),
               ],
             ),
@@ -1827,34 +1892,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.skip_previous, color: Colors.white),
-                  onPressed: _playPrevious,
-                  tooltip: 'السابق',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.replay_10, color: Colors.white),
-                  onPressed: _rewind10,
-                  tooltip: 'إعادة 10 ثوانٍ',
-                ),
-                IconButton(
-                  icon: Icon(
-                    _audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+                _buildControlButton(Icons.skip_previous, _playPrevious, 'السابق'),
+                _buildControlButton(Icons.replay_10, _rewind10, 'إعادة 10 ثوانٍ'),
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  onPressed: _togglePlayPause,
-                  tooltip: _audioPlayer.playing ? 'إيقاف' : 'تشغيل',
+                  child: IconButton(
+                    icon: Icon(
+                      _audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+                      color: Theme.of(context).primaryColor,
+                      size: 28,
+                    ),
+                    onPressed: _togglePlayPause,
+                    tooltip: _audioPlayer.playing ? 'إيقاف' : 'تشغيل',
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.forward_10, color: Colors.white),
-                  onPressed: _forward10,
-                  tooltip: 'تقديم 10 ثوانٍ',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.skip_next, color: Colors.white),
-                  onPressed: _playNext,
-                  tooltip: 'التالي',
-                ),
+                _buildControlButton(Icons.forward_10, _forward10, 'تقديم 10 ثوانٍ'),
+                _buildControlButton(Icons.skip_next, _playNext, 'التالي'),
               ],
             ),
             const SizedBox(height: 4),
@@ -1958,14 +2023,51 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(
-                decoration:
-                BoxDecoration(color: Theme.of(context).primaryColor),
-                child: const Center(
-                  child: Text(
-                    'الشيخ مشاري العفاسي',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      child: Icon(
+                        FontAwesomeIcons.mosque,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'الشيخ مشاري العفاسي',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'أذكار وأدعية وتلاوات',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               ListTile(
@@ -2132,14 +2234,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         body: Column(
           children: [
             // مربع البحث
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
               child: TextField(
                 controller: _searchController,
-                decoration: const InputDecoration(
-                  labelText: 'ابحث هنا',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'ابحث في ${_selectedCategory}',
+                  prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            filterSearchResults('');
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 onChanged: filterSearchResults,
               ),
@@ -2169,118 +2296,248 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                   final Supplication supp = filteredSupplications[itemIndex];
 
-                  return Card(
-                    margin:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      onTap: () {
-                        // في حالة كان نفس الملف يشغل حالياً
-                        if (_currentSupplication != null &&
-                            _currentSupplication!.title == supp.title &&
-                            _audioPlayer.playing) {
-                          pauseAudio();
-                        } else {
-                          playAudio(supp);
-                          checkAndShowInterstitialAd();
-                        }
-                      },
-                      leading: CircleAvatar(
-                        radius: 20,
-                        backgroundColor:
-                        Theme.of(context).primaryColor.withOpacity(0.1),
-                        child: Icon(
-                          supp.icon,
-                          color: Theme.of(context).primaryColor,
-                          size: 20,
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).cardColor,
+                          Theme.of(context).cardColor.withOpacity(0.8),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                      title: Text(
-                        supp.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        (supp.isLocalAudio || supp.isDownloaded)
-                            ? 'متاح بدون إنترنت'
-                            : 'قم بالتحميل لإستماع بدون إنترنت',
-                        style: TextStyle(
-                          color: (supp.isLocalAudio || supp.isDownloaded)
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                      ),
-                      trailing: Wrap(
-                        spacing: 12,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              _currentSupplication != null &&
-                                  _currentSupplication!.title ==
-                                      supp.title &&
-                                  _audioPlayer.playing
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            onPressed: () {
-                              if (_currentSupplication != null &&
-                                  _currentSupplication!.title == supp.title &&
-                                  _audioPlayer.playing) {
-                                pauseAudio();
-                              } else {
-                                playAudio(supp);
-                                checkAndShowInterstitialAd();
-                              }
-                            },
-                            tooltip: 'تشغيل/إيقاف',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.download,
-                              color: (supp.isLocalAudio || supp.isDownloaded)
-                                  ? Colors.grey
-                                  : Theme.of(context).primaryColor,
-                            ),
-                            onPressed: (supp.isLocalAudio || supp.isDownloaded)
-                                ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'الصوت متاح بالفعل دون إنترنت.'),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          // في حالة كان نفس الملف يشغل حالياً
+                          if (_currentSupplication != null &&
+                              _currentSupplication!.title == supp.title &&
+                              _audioPlayer.playing) {
+                            pauseAudio();
+                          } else {
+                            playAudio(supp);
+                            checkAndShowInterstitialAd();
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Theme.of(context).primaryColor,
+                                      Theme.of(context).primaryColor.withOpacity(0.7),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            }
-                                : () {
-                              downloadAudio(supp);
-                            },
-                            tooltip: 'تحميل الصوت',
+                                child: Icon(
+                                  supp.icon,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                      Text(
+                                      supp.title,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: (supp.isLocalAudio || supp.isDownloaded)
+                                                ? Colors.green.withOpacity(0.2)
+                                                : Colors.orange.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            (supp.isLocalAudio || supp.isDownloaded)
+                                                ? 'متاح بدون إنترنت'
+                                                : 'يتطلب إنترنت',
+                                            style: TextStyle(
+                                              color: (supp.isLocalAudio || supp.isDownloaded)
+                                                  ? Colors.green.shade700
+                                                  : Colors.orange.shade700,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        if (_currentSupplication?.title == supp.title && _audioPlayer.playing)
+                                          Container(
+                                            margin: const EdgeInsets.only(right: 8),
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.withOpacity(0.2),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              'قيد التشغيل',
+                                              style: TextStyle(
+                                                color: Colors.blue.shade700,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                          Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Theme.of(context).primaryColor.withOpacity(0.3),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _currentSupplication != null &&
+                                            _currentSupplication!.title == supp.title &&
+                                            _audioPlayer.playing
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        if (_currentSupplication != null &&
+                                            _currentSupplication!.title == supp.title &&
+                                            _audioPlayer.playing) {
+                                          pauseAudio();
+                                        } else {
+                                          playAudio(supp);
+                                          checkAndShowInterstitialAd();
+                                        }
+                                      },
+                                      tooltip: 'تشغيل/إيقاف',
+                                    ),
+                                  ),
+                          Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: (supp.isLocalAudio || supp.isDownloaded)
+                                          ? Colors.grey.withOpacity(0.3)
+                                          : Colors.green.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        (supp.isLocalAudio || supp.isDownloaded)
+                                            ? Icons.download_done
+                                            : Icons.download_for_offline,
+                                        color: (supp.isLocalAudio || supp.isDownloaded)
+                                            ? Colors.grey
+                                            : Colors.green.shade700,
+                                        size: 20,
+                                      ),
+                                      onPressed: (supp.isLocalAudio || supp.isDownloaded)
+                                          ? () {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: const Text('الصوت متاح بالفعل دون إنترنت'),
+                                            backgroundColor: Colors.green,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                          : () {
+                                        downloadAudio(supp);
+                                      },
+                                      tooltip: 'تحميل الصوت',
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: favorites.any((fav) => fav.title == supp.title)
+                                          ? Colors.red.withOpacity(0.2)
+                                          : Colors.grey.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        favorites.any((fav) => fav.title == supp.title)
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: favorites.any((fav) => fav.title == supp.title)
+                                            ? Colors.red
+                                            : Colors.grey.shade600,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (favorites.any((fav) => fav.title == supp.title)) {
+                                            favorites.removeWhere((fav) => fav.title == supp.title);
+                                          } else {
+                                            favorites.add(supp);
+                                          }
+                                          if (_selectedCategory == "المفضلة") {
+                                            filteredSupplications = List<Supplication>.from(favorites);
+                                          }
+                                        });
+                                        saveFavorites();
+                                      },
+                                      tooltip: 'إضافة إلى المفضلة',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: Icon(
-                              favorites.any((fav) => fav.title == supp.title)
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: Colors.red,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (favorites.any(
-                                        (fav) => fav.title == supp.title)) {
-                                  favorites.removeWhere(
-                                          (fav) => fav.title == supp.title);
-                                } else {
-                                  favorites.add(supp);
-                                }
-                                if (_selectedCategory == "المفضلة") {
-                                  filteredSupplications =
-                                  List<Supplication>.from(favorites);
-                                }
-                              });
-                              saveFavorites();
-                            },
-                            tooltip: 'إضافة إلى المفضلة',
-                          ),
+                        ),
+                      ),
+                    ),
                         ],
                       ),
                     ),
