@@ -48,7 +48,16 @@ void main() {
       (_) async => http.Response('Error', 500),
     );
 
-    expect(() => service.fetchWallpapers(), throwsA(isA<Exception>()));
+    expect(
+      () => service.fetchWallpapers(),
+      throwsA(
+        isA<WallpapersException>().having(
+          (e) => e.message,
+          'message',
+          contains('500'),
+        ),
+      ),
+    );
   });
 
   test('downloadImageBytes returns response bytes', () async {

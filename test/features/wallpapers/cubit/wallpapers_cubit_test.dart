@@ -40,8 +40,10 @@ void main() {
     await cubit.loadWallpapers();
   });
 
-  test('loadWallpapers emits failure when service throws', () async {
-    when(() => service.fetchWallpapers()).thenThrow(Exception('خطأ'));
+  test('loadWallpapers emits failure when service throws WallpapersException',
+      () async {
+    when(() => service.fetchWallpapers())
+        .thenThrow(const WallpapersException('خطأ'));
 
     expectLater(
       cubit.stream,
@@ -49,7 +51,24 @@ void main() {
         const WallpapersState(status: WallpapersStatus.loading),
         const WallpapersState(
           status: WallpapersStatus.failure,
-          errorMessage: 'Exception: خطأ',
+          errorMessage: 'خطأ',
+        ),
+      ]),
+    );
+
+    await cubit.loadWallpapers();
+  });
+
+  test('loadWallpapers emits generic message for unexpected errors', () async {
+    when(() => service.fetchWallpapers()).thenThrow(Exception('خطأ')); 
+
+    expectLater(
+      cubit.stream,
+      emitsInOrder([
+        const WallpapersState(status: WallpapersStatus.loading),
+        const WallpapersState(
+          status: WallpapersStatus.failure,
+          errorMessage: 'تعذر تحميل الخلفيات. الرجاء المحاولة لاحقاً.',
         ),
       ]),
     );
