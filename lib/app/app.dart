@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 import '../core/di/injection.dart';
+import '../core/services/storage_service.dart';
 import '../features/adhkar_reminder/data/services/adhkar_reminder_service.dart';
 import '../features/prayer_times/data/services/prayer_notification_service.dart';
 import 'home_page.dart';
@@ -71,10 +71,9 @@ class MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedTheme = prefs.getBool('isDarkMode') ?? false;
+    await StorageService.init();
     setState(() {
-      _isDarkMode = savedTheme;
+      _isDarkMode = StorageService.getTheme();
     });
   }
 
@@ -82,8 +81,7 @@ class MyAppState extends State<MyApp> {
     setState(() {
       _isDarkMode = !_isDarkMode;
     });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkMode', _isDarkMode);
+    await StorageService.saveTheme(_isDarkMode);
   }
 
   bool get isDarkMode => _isDarkMode;
