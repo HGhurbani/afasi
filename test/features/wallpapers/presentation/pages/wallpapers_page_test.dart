@@ -38,7 +38,8 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('shows error message when state is failure', (tester) async {
+  testWidgets('shows error message and retry button when state is failure',
+      (tester) async {
     when(() => cubit.state).thenReturn(
       const WallpapersState(
         status: WallpapersStatus.failure,
@@ -48,10 +49,18 @@ void main() {
     when(() => cubit.stream).thenAnswer(
       (_) => Stream<WallpapersState>.empty(),
     );
+    when(() => cubit.loadWallpapers()).thenAnswer((_) async {});
 
     await tester.pumpWidget(buildWidget());
 
     expect(find.text('خطأ'), findsOneWidget);
+    final retryFinder = find.widgetWithText(ElevatedButton, 'إعادة المحاولة');
+    expect(retryFinder, findsOneWidget);
+
+    await tester.tap(retryFinder);
+    await tester.pump();
+
+    verify(() => cubit.loadWallpapers()).called(1);
   });
 
   testWidgets('shows grid when images are available', (tester) async {

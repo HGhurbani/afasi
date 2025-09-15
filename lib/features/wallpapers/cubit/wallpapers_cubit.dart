@@ -36,10 +36,15 @@ class WallpapersCubit extends Cubit<WallpapersState> {
         status: WallpapersStatus.success,
         images: images,
       ));
+    } on WallpapersException catch (error) {
+      emit(state.copyWith(
+        status: WallpapersStatus.failure,
+        errorMessage: error.message,
+      ));
     } catch (error) {
       emit(state.copyWith(
         status: WallpapersStatus.failure,
-        errorMessage: error.toString(),
+        errorMessage: 'تعذر تحميل الخلفيات. الرجاء المحاولة لاحقاً.',
       ));
     }
   }

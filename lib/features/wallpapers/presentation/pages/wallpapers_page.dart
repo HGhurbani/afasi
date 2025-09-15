@@ -27,8 +27,28 @@ class WallpapersPage extends StatelessWidget {
             }
 
             if (state.status == WallpapersStatus.failure) {
+              final message = state.errorMessage ?? '❌ حدث خطأ غير متوقع';
               return Center(
-                child: Text(state.errorMessage ?? '❌ حدث خطأ غير متوقع'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontFamily: 'Tajawal'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () =>
+                          context.read<WallpapersCubit>().loadWallpapers(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('إعادة المحاولة'),
+                    ),
+                  ],
+                ),
               );
             }
 
