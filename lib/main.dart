@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:user_messaging_platform/user_messaging_platform.dart' as UMP;
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
@@ -63,22 +62,20 @@ Future<void> main() async {
 }
 
 Future<void> _initConsentForAds() async {
-  final UMP.ConsentRequestParameters params = UMP.ConsentRequestParameters();
+  final params = ConsentRequestParameters();
+  final consentInfo = ConsentInformation.instance;
 
   try {
-    var consentInfo = await UMP.UserMessagingPlatform.instance.requestConsentInfoUpdate(params);
+    await consentInfo.requestConsentInfoUpdate(params);
 
-    if (consentInfo.consentStatus == UMP.ConsentStatus.required) {
-      consentInfo = await UMP.UserMessagingPlatform.instance.showConsentForm();
+    if (await consentInfo.isConsentFormAvailable()) {
+      final form = await ConsentForm.loadConsentForm();
+      await form.show();
+    }
 
-      if (consentInfo.consentStatus == UMP.ConsentStatus.obtained) {
-        print("حصلنا على موافقة مخصصة (Personalized Ads).");
-      } else {
-        print("المستخدم لم يمنح موافقة مخصصة.");
-      }
-    } else if (consentInfo.consentStatus == UMP.ConsentStatus.obtained) {
-      print("موافقة مخصصة موجودة مسبقًا.");
-    } else if (consentInfo.consentStatus == UMP.ConsentStatus.notRequired) {
+    if (consentInfo.consentStatus == ConsentStatus.obtained) {
+      print("حصلنا على موافقة مخصصة (Personalized Ads).");
+    } else if (consentInfo.consentStatus == ConsentStatus.notRequired) {
       print("لا حاجة لعرض نموذج الموافقة.");
     } else {
       print("حالة الموافقة الحالية: ${consentInfo.consentStatus}");
