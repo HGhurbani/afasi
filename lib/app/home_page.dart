@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -15,12 +16,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import 'package:afasi/core/di/injection.dart';
+import 'package:afasi/features/wallpapers/cubit/wallpapers_cubit.dart';
+import 'package:afasi/features/wallpapers/presentation/pages/wallpapers_page.dart';
+
 import '../core/constants/app_constants.dart';
 import '../core/models/supplication.dart';
 import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
 import '../features/tasbih/presentation/pages/tasbih_page.dart';
-import '../wallpapers_page.dart';
 import 'ads_widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -1742,7 +1746,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => WallpapersPage()),
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (_) => getIt<WallpapersCubit>()..initialize(),
+                        child: const WallpapersPage(),
+                      ),
+                    ),
                   );
                 },
               ),

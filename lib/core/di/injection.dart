@@ -10,6 +10,8 @@ import '../../features/prayer_times/data/repositories/prayer_times_repository.da
 import '../../features/prayer_times/data/services/prayer_notification_service.dart';
 import '../../features/prayer_times/presentation/cubit/prayer_times_cubit.dart';
 import '../../features/tasbih/presentation/cubit/tasbih_cubit.dart';
+import '../../features/wallpapers/cubit/wallpapers_cubit.dart';
+import '../../features/wallpapers/data/services/wallpapers_service.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -23,6 +25,7 @@ Future<void> setupDependencies() async {
       () => AdhkarReminderService());
   getIt.registerLazySingleton<PrayerNotificationService>(
       () => PrayerNotificationService());
+  getIt.registerLazySingleton<WallpapersService>(() => WallpapersService());
 
   // Repositories
   getIt.registerLazySingleton<AudioRepository>(() => AudioRepositoryImpl());
@@ -41,4 +44,6 @@ Future<void> setupDependencies() async {
         prayerTimesRepository: getIt<PrayerTimesRepository>(),
         notificationService: getIt<PrayerNotificationService>(),
       ));
+  getIt.registerFactory<WallpapersCubit>(
+      () => WallpapersCubit(service: getIt<WallpapersService>()));
 }
