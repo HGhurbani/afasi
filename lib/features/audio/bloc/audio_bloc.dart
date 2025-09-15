@@ -56,6 +56,22 @@ class SearchSupplications extends AudioEvent {
   List<Object?> get props => [query];
 }
 
+class _AudioPlayerProcessingStateChanged extends AudioEvent {
+  final ProcessingState state;
+  const _AudioPlayerProcessingStateChanged(this.state);
+
+  @override
+  List<Object?> get props => [state];
+}
+
+class _AudioPlayerPlayingStateChanged extends AudioEvent {
+  final bool isPlaying;
+  const _AudioPlayerPlayingStateChanged(this.isPlaying);
+
+  @override
+  List<Object?> get props => [isPlaying];
+}
+
 // States
 abstract class AudioState extends Equatable {
   const AudioState();
@@ -158,8 +174,17 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     on<ToggleRepeat>(_onToggleRepeat);
     on<ToggleAutoNext>(_onToggleAutoNext);
     on<SearchSupplications>(_onSearchSupplications);
+    on<_AudioPlayerProcessingStateChanged>(_onAudioPlayerProcessingStateChanged);
+    on<_AudioPlayerPlayingStateChanged>(_onAudioPlayerPlayingStateChanged);
 
-    _audioService.initialize();
+    _audioService.initialize(
+      onProcessingStateChanged: (state) {
+        add(_AudioPlayerProcessingStateChanged(state));
+      },
+      onPlayingChanged: (playing) {
+        add(_AudioPlayerPlayingStateChanged(playing));
+      },
+    );
   }
 
   void _onLoadAudioCategories(LoadAudioCategories event, Emitter<AudioState> emit) {
@@ -247,8 +272,29 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
   void _onToggleAutoNext(ToggleAutoNext event, Emitter<AudioState> emit) {
     if (state is AudioLoaded) {
       final currentState = state as AudioLoaded;
-      
+
       emit(currentState.copyWith(isAutoNext: !currentState.isAutoNext));
+    }
+  }
+
+  void _onAudioPlayerProcessingStateChanged(
+      _AudioPlayerProcessingStateChanged event, Emitter<AudioState> emit) {
+    if (state is AudioLoaded) {
+      final currentState = state as AudioLoaded;
+      if (event.state == ProcessingState.completed) {
+        emit(currentState.copyWith(
+          currentSupplication: null,
+          isPlaying: false,
+        ));
+      }
+    }
+  }
+
+  void _onAudioPlayerPlayingStateChanged(
+      _AudioPlayerPlayingStateChanged event, Emitter<AudioState> emit) {
+    if (state is AudioLoaded) {
+      final currentState = state as AudioLoaded;
+      emit(currentState.copyWith(isPlaying: event.isPlaying));
     }
   }
 
