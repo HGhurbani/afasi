@@ -99,6 +99,8 @@ Future<void> schedulePrayerNotifications() async {
 }
 
 class PrayerTimesPage extends StatefulWidget {
+  static const routeName = '/prayer-times';
+
   const PrayerTimesPage({Key? key}) : super(key: key);
 
   @override
