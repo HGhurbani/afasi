@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:just_audio/just_audio.dart';
 
-import 'package:azkar/core/services/audio_service.dart';
+import 'package:afasi/core/services/audio_service.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
 
