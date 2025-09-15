@@ -101,11 +101,6 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin url_launcher_android, io.flutter.plugins.urllauncher.UrlLauncherPlugin", e);
     }
     try {
-      flutterEngine.getPlugins().add(new com.terwesten.gabriel.user_messaging_platform.UserMessagingPlatformPlugin());
-    } catch (Exception e) {
-      Log.e(TAG, "Error registering plugin user_messaging_platform, com.terwesten.gabriel.user_messaging_platform.UserMessagingPlatformPlugin", e);
-    }
-    try {
       flutterEngine.getPlugins().add(new com.example.wallpaper_manager_flutter.WallpaperManagerFlutterPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin wallpaper_manager_flutter, com.example.wallpaper_manager_flutter.WallpaperManagerFlutterPlugin", e);
