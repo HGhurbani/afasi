@@ -34,7 +34,7 @@ The "Azkar Alafasi App" is a comprehensive application developed using Flutter, 
     - Support for Light and Dark modes.
     - Ability to increase or decrease font size on the text reader page.
 - **🌍 Multi-Platform Support:** Built with Flutter, allowing it to run on Android, iOS, Web, Windows, macOS, and Linux.
-- **💰 Monetization:** The app includes AdMob ads to support its development and sustainability, while respecting user experience and displaying consent forms through Google Mobile Ads.
+- **💰 Monetization:** The app includes AdMob ads to support its development and sustainability, while respecting user experience and displaying User Messaging Platform (UMP) consent forms.
 - **🔔 Firebase Notifications:** Receive important notifications and updates.
 
 ## 📸 Screenshots
@@ -70,7 +70,8 @@ The "Azkar Alafasi App" is a comprehensive application developed using Flutter, 
 - **Permissions:**
     - `permission_handler`: For requesting permissions (notifications, location, storage).
 - **Ads:**
-    - `google_mobile_ads`: For displaying AdMob ads (banner, interstitial, native, and rewarded) and managing user consent.
+    - `google_mobile_ads`: For displaying AdMob ads (banner, interstitial, native, and rewarded).
+    - `user_messaging_platform`: For managing user consent for ads.
 - **UI & Utilities:**
     - `flutter_localization`: For multi-language support (the app currently focuses on Arabic).
     - `url_launcher`: To open external links (e.g., rate app, privacy policy).
