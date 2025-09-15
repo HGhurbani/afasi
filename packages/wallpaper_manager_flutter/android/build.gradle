@@ -2,7 +2,7 @@ plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
     // Apply the Flutter plugin for Android library modules
-    id "dev.flutter.plugin"
+    id "dev.flutter.plugin.android-library"
 }
 
 android {
