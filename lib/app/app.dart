@@ -16,13 +16,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../TasbihPage.dart';
-import '../features/adhkar/adhkar_reminder_page.dart';
-import '../features/adhan/prayer_times_page.dart';
-import '../features/adhkar/adhkar_reminder_manager.dart';
+import '../core/di/injection.dart';
+import '../features/adhkar_reminder/data/services/adhkar_reminder_service.dart';
+import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
+import '../features/prayer_times/data/services/prayer_notification_service.dart';
+import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
+import '../features/tasbih/presentation/pages/tasbih_page.dart';
 
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -47,9 +48,11 @@ Future<void> initializeApp() async {
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  await setupDependencies();
   tz.initializeTimeZones();
   await _initConsentForAds();
-  await AdhkarReminderManager.initialize();
+  await getIt<AdhkarReminderService>().initialize();
+  await getIt<PrayerNotificationService>().initialize();
   FirebaseInAppMessaging.instance.setAutomaticDataCollectionEnabled(true);
 
   // Initialize Mobile Ads SDK
