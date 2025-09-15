@@ -21,8 +21,8 @@ class DrawerWidget extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.primaryColor,
-                  AppColors.primaryColor.withOpacity(0.8),
+                  AppColors.accentBlue,
+                  AppColors.accentBlue.withOpacity(0.8),
                 ],
               ),
             ),
@@ -36,7 +36,7 @@ class DrawerWidget extends StatelessWidget {
                     child: FaIcon(
                       FontAwesomeIcons.quran,
                       size: 40,
-                      color: AppColors.primaryColor,
+                      color: AppColors.accentBlue,
                     ),
                   ),
                   SizedBox(height: 16),
@@ -76,7 +76,7 @@ class DrawerWidget extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   context,
-                  icon: FontAwesomeIcons.handsUp,
+                  icon: FontAwesomeIcons.hand,
                   title: 'الأدعية',
                   onTap: () => _selectCategory(context, 'الأدعية'),
                 ),
@@ -126,8 +126,8 @@ class DrawerWidget extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: FaIcon(icon, color: AppColors.primaryColor),
-      title: Text(title, style: AppStyles.bodyText),
+      leading: FaIcon(icon, color: AppColors.accentBlue),
+      title: Text(title, style: AppStyles.cardTitle),
       onTap: () {
         Navigator.pop(context);
         onTap();

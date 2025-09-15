@@ -30,7 +30,7 @@ class AudioPlayerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryColor,
+        color: AppColors.accentBlue,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
@@ -117,7 +117,7 @@ class AudioPlayerWidget extends StatelessWidget {
                   },
                   icon: FaIcon(
                     isPlaying ? FontAwesomeIcons.pause : FontAwesomeIcons.play,
-                    color: AppColors.primaryColor,
+                    color: AppColors.accentBlue,
                     size: 24,
                   ),
                 ),

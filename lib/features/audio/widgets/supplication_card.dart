@@ -39,12 +39,12 @@ class SupplicationCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: AppColors.accentBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: FaIcon(
                     supplication.icon,
-                    color: AppColors.primaryColor,
+                    color: AppColors.accentBlue,
                     size: 24,
                   ),
                 ),
@@ -103,7 +103,7 @@ class SupplicationCard extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isPrimary ? AppColors.primaryColor : Colors.grey.withOpacity(0.1),
+            color: isPrimary ? AppColors.accentBlue : Colors.grey.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: IconButton(
