@@ -1,39 +1,34 @@
-// lib/TasbihPage.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // لإضافة الاهتزاز
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TasbihPage extends StatefulWidget {
-  const TasbihPage({Key? key}) : super(key: key); //
+import '../../../../core/di/injection.dart';
+import '../cubit/tasbih_cubit.dart';
+
+class TasbihPage extends StatelessWidget {
+  static const routeName = '/tasbih';
+
+  const TasbihPage({Key? key}) : super(key: key);
 
   @override
-  _TasbihPageState createState() => _TasbihPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<TasbihCubit>(),
+      child: const _TasbihView(),
+    );
+  }
 }
 
-class _TasbihPageState extends State<TasbihPage> {
-  int _counter = 0; //
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++; //
-    });
-    HapticFeedback.lightImpact(); // إضافة اهتزاز خفيف عند الضغط
-  }
-
-  void _resetCounter() {
-    setState(() {
-      _counter = 0; //
-    });
-    HapticFeedback.mediumImpact(); // إضافة اهتزاز متوسط عند إعادة التعيين
-  }
+class _TasbihView extends StatelessWidget {
+  const _TasbihView();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("المسبحة الإلكترونية"), //
+        title: const Text('المسبحة الإلكترونية'),
       ),
       body: Center(
         child: Padding(
@@ -41,18 +36,18 @@ class _TasbihPageState extends State<TasbihPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
+            children: [
               Text(
-                "عدد التسبيحات:", //
+                'عدد التسبيحات:',
                 style: TextStyle(
-                  fontSize: 28, //
+                  fontSize: 28,
                   fontWeight: FontWeight.w500,
                   color: isDarkMode ? Colors.white70 : Colors.black87,
                   fontFamily: 'Tajawal',
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20), //
+              const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 decoration: BoxDecoration(
@@ -60,23 +55,27 @@ class _TasbihPageState extends State<TasbihPage> {
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: theme.primaryColor, width: 1),
                 ),
-                child: Text(
-                  '$_counter', //
-                  style: TextStyle(
-                    fontSize: 72, //
-                    fontWeight: FontWeight.bold, //
-                    color: theme.primaryColor,
-                    fontFamily: 'Tajawal',
-                  ),
-                  textAlign: TextAlign.center,
+                child: BlocBuilder<TasbihCubit, TasbihState>(
+                  builder: (context, state) {
+                    return Text(
+                      '${state.counter}',
+                      style: TextStyle(
+                        fontSize: 72,
+                        fontWeight: FontWeight.bold,
+                        color: theme.primaryColor,
+                        fontFamily: 'Tajawal',
+                      ),
+                      textAlign: TextAlign.center,
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 30), //
+              const SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: _incrementCounter, //
-                icon: const Icon(Icons.add_circle_outline, size: 28), //
+                onPressed: () => context.read<TasbihCubit>().increment(),
+                icon: const Icon(Icons.add_circle_outline, size: 28),
                 label: const Text(
-                  "تسبيحة", //
+                  'تسبيحة',
                   style: TextStyle(fontSize: 20, fontFamily: 'Tajawal'),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -89,12 +88,12 @@ class _TasbihPageState extends State<TasbihPage> {
                   elevation: 3,
                 ),
               ),
-              const SizedBox(height: 15), //
+              const SizedBox(height: 15),
               TextButton.icon(
-                onPressed: _resetCounter, //
-                icon: const Icon(Icons.refresh, size: 24), //
+                onPressed: () => context.read<TasbihCubit>().reset(),
+                icon: const Icon(Icons.refresh, size: 24),
                 label: const Text(
-                  "إعادة التعيين", //
+                  'إعادة التعيين',
                   style: TextStyle(fontSize: 16, fontFamily: 'Tajawal'),
                 ),
                 style: TextButton.styleFrom(
