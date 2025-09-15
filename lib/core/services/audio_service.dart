@@ -9,18 +9,27 @@ import 'package:path_provider/path_provider.dart';
 import '../models/supplication.dart';
 
 class AudioService {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  AudioService({AudioPlayer? audioPlayer}) : _audioPlayer = audioPlayer ?? AudioPlayer();
+
+  final AudioPlayer _audioPlayer;
   final Map<String, String> _youtubeCache = {};
-  
+
   StreamSubscription<ProcessingState>? _processingStateSubscription;
   StreamSubscription<bool>? _playingStreamSubscription;
 
   AudioPlayer get audioPlayer => _audioPlayer;
   Map<String, String> get youtubeCache => _youtubeCache;
 
-  void initialize() {
-    _processingStateSubscription = _audioPlayer.processingStateStream.listen(null);
-    _playingStreamSubscription = _audioPlayer.playingStream.listen(null);
+  void initialize({
+    void Function(ProcessingState state)? onProcessingStateChanged,
+    void Function(bool playing)? onPlayingChanged,
+  }) {
+    _processingStateSubscription = onProcessingStateChanged == null
+        ? null
+        : _audioPlayer.processingStateStream.listen(onProcessingStateChanged);
+    _playingStreamSubscription = onPlayingChanged == null
+        ? null
+        : _audioPlayer.playingStream.listen(onPlayingChanged);
   }
 
   Future<void> setAudioSource(Supplication supplication) async {
