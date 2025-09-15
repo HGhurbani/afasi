@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallpaper_manager_flutter/wallpaper_manager_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'core/constants/app_constants.dart';
 
 class WallpapersPage extends StatefulWidget {
   @override
@@ -29,7 +30,7 @@ class _WallpapersPageState extends State<WallpapersPage> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7223999276472548/9615774793', // نفس الموجود في main
+      adUnitId: AppConstants.bannerAdUnitId, // نفس الموجود في main
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -148,7 +149,7 @@ class _FullImageViewState extends State<FullImageView> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7223999276472548/9615774793',
+      adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -177,7 +178,7 @@ class _FullImageViewState extends State<FullImageView> {
 
   void _loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: 'ca-app-pub-7223999276472548/6569146925',
+      adUnitId: AppConstants.interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) => _interstitialAd = ad,

@@ -28,6 +28,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../wallpapers_page.dart';
 import 'routing.dart';
+import '../core/constants/app_constants.dart';
 
 final GlobalKey<MyAppState> myAppKey = GlobalKey<MyAppState>();
 
@@ -72,7 +73,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   void _loadAd() {
     _nativeAd = NativeAd(
-      adUnitId: 'ca-app-pub-7223999276472548/6597309308', // Production Ad Unit ID
+      adUnitId: AppConstants.nativeAdUnitId, // Production Ad Unit ID
       factoryId: 'listTile',
       request: const AdRequest(),
       listener: NativeAdListener(
@@ -1153,7 +1154,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// تحميل إعلان البانر
   void loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7223999276472548/9615774793',
+      adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -1169,7 +1170,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// تحميل إعلان انتقالي (Interstitial)
   void loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: 'ca-app-pub-7223999276472548/6569146925',
+      adUnitId: AppConstants.interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) => _interstitialAd = ad,
@@ -1181,7 +1182,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// تحميل إعلان مكافآت (Rewarded)
   void loadRewardedAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-7223999276472548/7762749023',
+      adUnitId: AppConstants.rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) => _rewardedAd = ad,
@@ -2388,7 +2389,7 @@ class AppOpenAdManager {
 
   void loadAd() {
     AppOpenAd.load(
-      adUnitId: 'ca-app-pub-7223999276472548/1510060234',
+      adUnitId: AppConstants.appOpenAdUnitId,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
