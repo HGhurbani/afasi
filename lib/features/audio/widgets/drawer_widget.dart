@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_styles.dart';
 import '../bloc/audio_bloc.dart';
+import '../../settings/settings_page.dart';
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({Key? key}) : super(key: key);
@@ -141,7 +142,10 @@ class DrawerWidget extends StatelessWidget {
   }
 
   void _showSettings(BuildContext context) {
-    // Navigate to settings page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
   }
 
   void _showAbout(BuildContext context) {

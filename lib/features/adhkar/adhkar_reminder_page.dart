@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'AdhkarReminderManager.dart';
+import 'adhkar_reminder_manager.dart';
 
 class AdhkarReminderPage extends StatefulWidget {
+  static const routeName = '/adhkar-reminder';
+
   const AdhkarReminderPage({Key? key}) : super(key: key);
 
   @override
