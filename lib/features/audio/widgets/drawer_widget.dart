@@ -76,7 +76,7 @@ class DrawerWidget extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   context,
-                  icon: FontAwesomeIcons.hand,
+                  icon: FontAwesomeIcons.handsPraying,
                   title: 'الأدعية',
                   onTap: () => _selectCategory(context, 'الأدعية'),
                 ),
@@ -127,7 +127,7 @@ class DrawerWidget extends StatelessWidget {
   }) {
     return ListTile(
       leading: FaIcon(icon, color: AppColors.accentBlue),
-      title: Text(title, style: AppStyles.cardTitle),
+      title: Text(title, style: AppStyles.cardSubtitle),
       onTap: () {
         Navigator.pop(context);
         onTap();
