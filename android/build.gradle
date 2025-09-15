@@ -24,6 +24,17 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Ensure plugins provide a namespace to satisfy AGP 8+ requirements.
+// This is particularly needed for older plugins like `user_messaging_platform`
+// which might omit the `namespace` declaration in their own build.gradle.
+subprojects { project ->
+    afterEvaluate {
+        if (project.name == "user_messaging_platform" && project.hasProperty("android")) {
+            project.android.namespace = "io.flutter.plugins.usermessagingplatform"
+        }
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
