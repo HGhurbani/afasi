@@ -51,7 +51,7 @@ class WallpapersCubit extends Cubit<WallpapersState> {
 
   void loadListBannerAd() {
     state.listBannerAd?.dispose();
-    final banner = BannerAd(
+    BannerAd(
       adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
@@ -61,7 +61,7 @@ class WallpapersCubit extends Cubit<WallpapersState> {
             ad.dispose();
             return;
           }
-          emit(state.copyWith(listBannerAd: banner));
+          emit(state.copyWith(listBannerAd: ad as BannerAd));
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
@@ -75,7 +75,7 @@ class WallpapersCubit extends Cubit<WallpapersState> {
 
   void loadDetailBannerAd() {
     state.detailBannerAd?.dispose();
-    final banner = BannerAd(
+    BannerAd(
       adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
@@ -85,7 +85,7 @@ class WallpapersCubit extends Cubit<WallpapersState> {
             ad.dispose();
             return;
           }
-          emit(state.copyWith(detailBannerAd: banner));
+          emit(state.copyWith(detailBannerAd: ad as BannerAd));
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();

@@ -52,7 +52,7 @@ class AppTheme {
           prefixIconColor: Colors.white,
           border: OutlineInputBorder(),
         ),
-        dialogTheme: const DialogTheme(
+        dialogTheme: const DialogThemeData(
           backgroundColor: Colors.black87,
           titleTextStyle: TextStyle(
             color: Colors.white,
