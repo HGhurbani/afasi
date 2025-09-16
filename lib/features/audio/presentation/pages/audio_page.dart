@@ -1143,6 +1143,12 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     Navigator.pop(context);
 
     String urlToDownload = supp.audioUrl;
+    http.Client? client;
+    bool clientClosed = false;
+    StreamSubscription<List<int>>? subscription;
+    bool isCancelled = false;
+    bool isProgressDialogOpen = false;
+    final List<int> bytes = [];
     try {
       // إذا كان الرابط من يوتيوب
       if (supp.audioUrl.contains("youtube.com") ||
@@ -1155,7 +1161,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         urlToDownload = audioStreamInfo.url.toString();
         yt.close();
       }
-      final client = http.Client();
+      client = http.Client();
       final request = http.Request("GET", Uri.parse(urlToDownload));
       final response = await client.send(request);
 
@@ -1167,13 +1173,13 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
       final downloadedBytesNotifier = ValueNotifier<int>(0);
       final pausedNotifier = ValueNotifier<bool>(false);
 
-      StreamSubscription<List<int>>? subscription;
+      isProgressDialogOpen = true;
 
       // عرض حوار التحميل والتقدم
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) {
+        builder: (dialogContext) {
           return ValueListenableBuilder<double>(
             valueListenable: progressNotifier,
             builder: (context, progress, _) {
@@ -1204,6 +1210,40 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   ],
                 ),
                 actions: [
+                  TextButton(
+                    onPressed: () async {
+                      if (isCancelled) {
+                        return;
+                      }
+                      isCancelled = true;
+                      progressNotifier.value = 0.0;
+                      downloadedBytes = 0;
+                      downloadedBytesNotifier.value = 0;
+                      bytes.clear();
+                      pausedNotifier.value = false;
+                      if (subscription != null) {
+                        await subscription!.cancel();
+                        subscription = null;
+                      }
+                      if (client != null && !clientClosed) {
+                        client!.close();
+                        clientClosed = true;
+                      }
+                      if (isProgressDialogOpen) {
+                        Navigator.of(dialogContext).pop();
+                        isProgressDialogOpen = false;
+                      }
+                      if (!mounted) {
+                        return;
+                      }
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(
+                          content: Text('تم إلغاء تحميل ${supp.title}'),
+                        ),
+                      );
+                    },
+                    child: const Text('إلغاء'),
+                  ),
                   ValueListenableBuilder<bool>(
                     valueListenable: pausedNotifier,
                     builder: (context, paused, _) {
@@ -1231,7 +1271,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
       );
 
       // بدء التحميل
-      final List<int> bytes = [];
       subscription = response.stream.listen((newBytes) {
         bytes.addAll(newBytes);
         downloadedBytes += newBytes.length;
@@ -1241,9 +1280,29 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         }
       });
 
-      await subscription.asFuture();
-      Navigator.pop(context);
-      client.close();
+      if (subscription != null) {
+        try {
+          await subscription!.asFuture<void>();
+        } catch (error) {
+          if (!isCancelled) {
+            rethrow;
+          }
+        }
+      }
+
+      if (isCancelled) {
+        return;
+      }
+
+      if (isProgressDialogOpen) {
+        Navigator.pop(context);
+        isProgressDialogOpen = false;
+      }
+
+      if (client != null && !clientClosed) {
+        client!.close();
+        clientClosed = true;
+      }
 
       // حفظ الملف
       final Directory dir = await getApplicationSupportDirectory();
@@ -1257,11 +1316,20 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         SnackBar(content: Text('تم تحميل ${supp.title} بنجاح!')),
       );
     } catch (e) {
-      Navigator.pop(context); // إغلاق حوار التحميل
-      print("Download error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('حدث خطأ أثناء التحميل أعد المحاولة.')),
-      );
+      if (isProgressDialogOpen) {
+        Navigator.pop(context);
+        isProgressDialogOpen = false;
+      }
+      if (client != null && !clientClosed) {
+        client!.close();
+        clientClosed = true;
+      }
+      if (!isCancelled) {
+        print("Download error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('حدث خطأ أثناء التحميل أعد المحاولة.')),
+        );
+      }
     }
   }
 
