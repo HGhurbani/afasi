@@ -117,12 +117,16 @@ class _PrayerTimesView extends StatelessWidget {
                   end: Alignment.bottomCenter,
                 ),
               ),
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  ...prayers.map((prayer) {
-                    return Card(
-                      elevation: 4,
+              child: RefreshIndicator(
+                onRefresh: () =>
+                    context.read<PrayerTimesCubit>().refreshPrayerTimes(),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    ...prayers.map((prayer) {
+                      return Card(
+                        elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -172,6 +176,7 @@ class _PrayerTimesView extends StatelessWidget {
                     ),
                   ),
                 ],
+                ),
               ),
             );
           },
