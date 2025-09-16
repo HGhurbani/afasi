@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../core/di/injection.dart';
+import '../core/services/storage_service.dart';
 import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import '../features/audio/presentation/pages/audio_page.dart';
 import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
@@ -9,7 +10,7 @@ import '../features/tasbih/presentation/pages/tasbih_page.dart';
 import '../features/wallpapers/cubit/wallpapers_cubit.dart';
 import '../features/wallpapers/presentation/pages/wallpapers_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback onToggleTheme;
 
@@ -18,6 +19,50 @@ class HomePage extends StatelessWidget {
     required this.isDarkMode,
     required this.onToggleTheme,
   });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> _audioFavorites = const <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  void _loadFavorites() {
+    final favorites = StorageService.getFavorites();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _audioFavorites = List<String>.from(favorites);
+    });
+  }
+
+  Future<void> _removeFavorite(String title) async {
+    if (!_audioFavorites.contains(title)) {
+      return;
+    }
+    final updatedFavorites = List<String>.from(_audioFavorites)..remove(title);
+    setState(() {
+      _audioFavorites = updatedFavorites;
+    });
+    await StorageService.saveFavorites(updatedFavorites);
+  }
+
+  Future<void> _clearFavorites() async {
+    if (_audioFavorites.isEmpty) {
+      return;
+    }
+    setState(() {
+      _audioFavorites = const <String>[];
+    });
+    await StorageService.saveFavorites(const <String>[]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +79,10 @@ class HomePage extends StatelessWidget {
             context,
             AudioPage.routeName,
             arguments: AudioPageArguments(
-              isDarkMode: isDarkMode,
-              onToggleTheme: onToggleTheme,
+              isDarkMode: widget.isDarkMode,
+              onToggleTheme: widget.onToggleTheme,
             ),
-          );
+          ).then((_) => _loadFavorites());
         },
       ),
       _HomeFeatureCardData(
@@ -99,10 +144,10 @@ class HomePage extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              onPressed: onToggleTheme,
+              onPressed: widget.onToggleTheme,
               tooltip: 'تغيير الوضع',
               icon: Icon(
-                isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                widget.isDarkMode ? Icons.dark_mode : Icons.light_mode,
                 color: Colors.white,
               ),
             ),
@@ -110,18 +155,31 @@ class HomePage extends StatelessWidget {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: GridView.builder(
-            itemCount: features.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.95,
-            ),
-            itemBuilder: (context, index) {
-              final feature = features[index];
-              return _FeatureCard(feature: feature);
-            },
+          child: Column(
+            children: [
+              if (_audioFavorites.isNotEmpty)
+                _FavoritesSection(
+                  favorites: _audioFavorites,
+                  onRemoveFavorite: _removeFavorite,
+                  onClearFavorites: _clearFavorites,
+                ),
+              if (_audioFavorites.isNotEmpty) const SizedBox(height: 16),
+              Expanded(
+                child: GridView.builder(
+                  itemCount: features.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.95,
+                  ),
+                  itemBuilder: (context, index) {
+                    final feature = features[index];
+                    return _FeatureCard(feature: feature);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -202,6 +260,70 @@ class _FeatureCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FavoritesSection extends StatelessWidget {
+  final List<String> favorites;
+  final ValueChanged<String> onRemoveFavorite;
+  final VoidCallback onClearFavorites;
+
+  const _FavoritesSection({
+    required this.favorites,
+    required this.onRemoveFavorite,
+    required this.onClearFavorites,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.favorite, color: Colors.red),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'المفضلات الصوتية',
+                    style: TextStyle(
+                      fontFamily: 'Tajawal',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: onClearFavorites,
+                  child: const Text('مسح الكل'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: favorites
+                  .map(
+                    (favorite) => InputChip(
+                      label: Text(
+                        favorite,
+                        style: const TextStyle(fontFamily: 'Tajawal'),
+                      ),
+                      onDeleted: () => onRemoveFavorite(favorite),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
         ),
       ),
     );

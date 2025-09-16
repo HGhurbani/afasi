@@ -1,10 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../../core/models/supplication.dart';
+import '../../../../core/services/storage_service.dart';
 
 class AudioFavoritesService {
-  static const String _favoritesKey = 'favorites';
-
   final List<String> _favoriteTitles = [];
   final Map<String, Supplication> _supplicationByTitle = {};
 
@@ -17,8 +14,7 @@ class AudioFavoritesService {
             ),
       );
 
-    final prefs = await SharedPreferences.getInstance();
-    final savedFavorites = prefs.getStringList(_favoritesKey) ?? [];
+    final savedFavorites = StorageService.getFavorites();
 
     _favoriteTitles
       ..clear()
@@ -47,7 +43,6 @@ class AudioFavoritesService {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_favoritesKey, List.unmodifiable(_favoriteTitles));
+    await StorageService.saveFavorites(List.unmodifiable(_favoriteTitles));
   }
 }
