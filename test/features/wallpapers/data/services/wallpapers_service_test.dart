@@ -60,6 +60,24 @@ void main() {
     );
   });
 
+  test('fetchWallpapers wraps parsing errors inside WallpapersException',
+      () async {
+    when(() => client.get(any())).thenAnswer(
+      (_) async => http.Response('<not><valid></xml>', 200),
+    );
+
+    expect(
+      () => service.fetchWallpapers(),
+      throwsA(
+        isA<WallpapersException>().having(
+          (e) => e.message,
+          'message',
+          contains('تعذر معالجة بيانات الخلفيات'),
+        ),
+      ),
+    );
+  });
+
   test('downloadImageBytes returns response bytes', () async {
     final bytes = <int>[1, 2, 3];
     when(() => client.get(any())).thenAnswer(
@@ -70,5 +88,23 @@ void main() {
         await service.downloadImageBytes('https://example.com/image.jpg');
 
     expect(result, equals(bytes));
+  });
+
+  test('downloadImageBytes throws WallpapersException on non-200 response',
+      () async {
+    when(() => client.get(any())).thenAnswer(
+      (_) async => http.Response('Not Found', 404),
+    );
+
+    expect(
+      () => service.downloadImageBytes('https://example.com/image.jpg'),
+      throwsA(
+        isA<WallpapersException>().having(
+          (e) => e.message,
+          'message',
+          contains('404'),
+        ),
+      ),
+    );
   });
 }
