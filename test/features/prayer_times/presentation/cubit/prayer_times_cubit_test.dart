@@ -142,4 +142,61 @@ void main() {
         'لا يمكن جدولة التنبيهات قبل تحميل أوقات الصلاة.');
     expect(errorState.notificationsEnabled, isFalse);
   });
+
+  test('refreshPrayerTimes reloads times and schedules notifications when enabled',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'notificationsScheduled': true,
+    });
+
+    await cubit.initialize();
+    emittedStates.clear();
+
+    final updatedCoordinates = Coordinates(21.3891, 39.8579);
+    final updatedParams = CalculationMethod.egyptian.getParameters()
+      ..madhab = Madhab.hanafi;
+    final updatedDate = DateComponents(2024, 2, 1);
+    final updatedTimes = PrayerTimes(updatedCoordinates, updatedDate, updatedParams);
+
+    when(() => repository.fetchPrayerTimes())
+        .thenAnswer((_) async => updatedTimes);
+    when(() =>
+            notificationService.schedulePrayerNotifications(updatedTimes))
+        .thenAnswer((_) async {});
+
+    await cubit.refreshPrayerTimes();
+
+    expect(emittedStates.length, 2);
+    final loadingState = emittedStates.first;
+    expect(loadingState.isLoading, isTrue);
+    expect(loadingState.errorMessage, isNull);
+
+    final refreshedState = emittedStates.last;
+    expect(refreshedState.prayerTimes, same(updatedTimes));
+    expect(refreshedState.notificationsEnabled, isTrue);
+    expect(refreshedState.isLoading, isFalse);
+    expect(refreshedState.errorMessage, isNull);
+
+    verify(() => repository.fetchPrayerTimes()).called(2);
+    verify(() =>
+            notificationService.schedulePrayerNotifications(updatedTimes))
+        .called(1);
+  });
+
+  test('refreshPrayerTimes emits failure state when repository throws', () async {
+    when(() => repository.fetchPrayerTimes())
+        .thenThrow(Exception('فشل تحميل الأوقات'));
+
+    await cubit.refreshPrayerTimes();
+
+    expect(emittedStates.length, 2);
+    final loadingState = emittedStates.first;
+    expect(loadingState.isLoading, isTrue);
+    expect(loadingState.errorMessage, isNull);
+
+    final failureState = emittedStates.last;
+    expect(failureState.isLoading, isFalse);
+    expect(failureState.prayerTimes, isNull);
+    expect(failureState.errorMessage, 'Exception: فشل تحميل الأوقات');
+  });
 }
