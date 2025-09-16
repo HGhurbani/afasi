@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
+import '../features/audio/presentation/pages/audio_page.dart';
 import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
 import '../features/settings/settings_page.dart';
 
@@ -15,6 +16,17 @@ class AppRouter {
       case SettingsPage.routeName:
         return MaterialPageRoute(
             builder: (_) => const SettingsPage());
+      case AudioPage.routeName:
+        final args = settings.arguments;
+        if (args is AudioPageArguments) {
+          return MaterialPageRoute(
+            builder: (_) => AudioPage(
+              isDarkMode: args.isDarkMode,
+              onToggleTheme: args.onToggleTheme,
+            ),
+          );
+        }
+        throw ArgumentError('AudioPage requires AudioPageArguments.');
       default:
         return null;
     }
