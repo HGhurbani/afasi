@@ -244,11 +244,12 @@ class _FeatureCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   feature.description,
-                  style: const TextStyle(
-                    fontFamily: 'Tajawal',
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontFamily: 'Tajawal',
+                      ) ??
+                      const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
                 ),
               ),
               Align(
