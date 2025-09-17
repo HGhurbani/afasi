@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const Color primaryColor = Color(0xFF3498DB);
   static const Color darkPrimaryColor = Color(0xFF2C3E50);
+  static const Color darkAccentColor = Color(0xFF64B5F6);
+  static const Color darkSecondaryColor = Color(0xFF48C9B0);
 
   static ThemeData get lightTheme => ThemeData(
         fontFamily: 'Tajawal',
@@ -42,10 +44,12 @@ class AppTheme {
             fontSize: 20,
           ),
         ),
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: createMaterialColor(darkPrimaryColor),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: darkPrimaryColor,
+          brightness: Brightness.dark,
         ).copyWith(
-          secondary: darkPrimaryColor,
+          primary: darkAccentColor,
+          secondary: darkSecondaryColor,
         ),
         inputDecorationTheme: const InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.white),
