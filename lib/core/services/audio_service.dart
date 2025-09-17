@@ -39,7 +39,11 @@ class AudioService {
       await _audioPlayer.setAudioSource(
         AudioSource.asset(
           source,
-          tag: MediaItem(id: source, title: supplication.title),
+          tag: MediaItem(
+            id: source,
+            title: supplication.title,
+            album: 'Audio',
+          ),
         ),
       );
       return;
@@ -52,7 +56,11 @@ class AudioService {
       await _audioPlayer.setAudioSource(
         AudioSource.file(
           filePath,
-          tag: MediaItem(id: filePath, title: supplication.title),
+          tag: MediaItem(
+            id: filePath,
+            title: supplication.title,
+            album: 'Audio',
+          ),
         ),
       );
       return;
@@ -74,7 +82,89 @@ class AudioService {
     await _audioPlayer.setAudioSource(
       AudioSource.uri(
         Uri.parse(source),
-        tag: MediaItem(id: source, title: supplication.title),
+        tag: MediaItem(
+          id: source,
+          title: supplication.title,
+          album: 'Audio',
+        ),
+      ),
+    );
+  }
+
+  Future<void> setPlaylist({
+    required List<Supplication> supplications,
+    required int initialIndex,
+    String? album,
+  }) async {
+    final List<AudioSource> audioSources = [];
+    for (final supp in supplications) {
+      final AudioSource src = await _buildAudioSourceForSupplication(
+        supp,
+        album: album,
+      );
+      audioSources.add(src);
+    }
+
+    final ConcatenatingAudioSource playlist = ConcatenatingAudioSource(
+      useLazyPreparation: true,
+      children: audioSources,
+    );
+
+    await _audioPlayer.setAudioSource(
+      playlist,
+      initialIndex: initialIndex.clamp(0, audioSources.length - 1),
+      initialPosition: Duration.zero,
+    );
+  }
+
+  Future<AudioSource> _buildAudioSourceForSupplication(
+    Supplication supplication, {
+    String? album,
+  }) async {
+    String source = supplication.audioUrl;
+
+    if (supplication.isLocalAudio) {
+      return AudioSource.asset(
+        source,
+        tag: MediaItem(
+          id: source,
+          title: supplication.title,
+          album: album ?? 'Audio',
+        ),
+      );
+    }
+
+    final Directory dir = await getApplicationSupportDirectory();
+    final String filePath = '${dir.path}/${supplication.title}.mp3';
+    if (await File(filePath).exists()) {
+      return AudioSource.file(
+        filePath,
+        tag: MediaItem(
+          id: filePath,
+          title: supplication.title,
+          album: album ?? 'Audio',
+        ),
+      );
+    }
+
+    if (source.contains('youtube.com') || source.contains('youtu.be')) {
+      final String? videoId = _extractYoutubeVideoId(source);
+      if (videoId != null) {
+        if (_youtubeCache.containsKey(videoId)) {
+          source = _youtubeCache[videoId]!;
+        } else {
+          source = await _extractYoutubeAudioUrl(videoId);
+          _youtubeCache[videoId] = source;
+        }
+      }
+    }
+
+    return AudioSource.uri(
+      Uri.parse(source),
+      tag: MediaItem(
+        id: source,
+        title: supplication.title,
+        album: album ?? 'Audio',
       ),
     );
   }
@@ -96,13 +186,13 @@ class AudioService {
     return match?.group(1);
   }
 
-  void play() => _audioPlayer.play();
-  void pause() => _audioPlayer.pause();
-  void stop() => _audioPlayer.stop();
+  Future<void> play() => _audioPlayer.play();
+  Future<void> pause() => _audioPlayer.pause();
+  Future<void> stop() => _audioPlayer.stop();
   
   Future<void> seek(Duration position) => _audioPlayer.seek(position);
   
-  void setLoopMode(LoopMode loopMode) => _audioPlayer.setLoopMode(loopMode);
+  Future<void> setLoopMode(LoopMode loopMode) => _audioPlayer.setLoopMode(loopMode);
 
   void dispose() {
     _processingStateSubscription?.cancel();

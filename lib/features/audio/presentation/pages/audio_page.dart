@@ -1085,7 +1085,14 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     }
 
     try {
-      await audioService.setAudioSource(supp);
+      // Build playlist based on current filtered list to enable next/prev in notification
+      final int initialIndex = filteredSupplications
+          .indexWhere((s) => s.title == supp.title);
+      await audioService.setPlaylist(
+        supplications: filteredSupplications,
+        initialIndex: initialIndex >= 0 ? initialIndex : 0,
+        album: _selectedCategory,
+      );
       await audioService.play();
     } catch (e) {
       print("Error playing audio: $e");
@@ -1354,20 +1361,14 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   }
 
   void _playNext() {
-    if (_currentSupplication == null) return;
-    final int currentIndex = filteredSupplications
-        .indexWhere((s) => s.title == _currentSupplication!.title);
-    if (currentIndex < filteredSupplications.length - 1) {
-      playAudio(filteredSupplications[currentIndex + 1]);
+    if (audioService.audioPlayer.hasNext) {
+      audioService.audioPlayer.seekToNext();
     }
   }
 
   void _playPrevious() {
-    if (_currentSupplication == null) return;
-    final int currentIndex = filteredSupplications
-        .indexWhere((s) => s.title == _currentSupplication!.title);
-    if (currentIndex > 0) {
-      playAudio(filteredSupplications[currentIndex - 1]);
+    if (audioService.audioPlayer.hasPrevious) {
+      audioService.audioPlayer.seekToPrevious();
     }
   }
 
