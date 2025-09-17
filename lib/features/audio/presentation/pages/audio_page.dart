@@ -9,7 +9,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -18,6 +17,7 @@ import 'package:afasi/app/ads_widgets.dart';
 import 'package:afasi/core/constants/app_constants.dart';
 import 'package:afasi/core/di/injection.dart';
 import 'package:afasi/core/models/supplication.dart';
+import 'package:afasi/core/services/audio_service.dart';
 import 'package:afasi/core/services/storage_service.dart';
 import 'package:afasi/features/audio/domain/services/audio_favorites_service.dart';
 import 'package:afasi/features/audio/domain/services/sleep_timer_service.dart';
@@ -135,7 +135,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     _sleepTimerService.startTimer(
       minutes: minutes,
       onTimerComplete: (completedMinutes) {
-        _audioPlayer.stop();
+        audioService.stop();
         if (!mounted) {
           return;
         }
@@ -175,13 +175,13 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     _isRepeat = StorageService.getAudioRepeat();
     _isAutoNext = StorageService.getAudioAutoNext();
 
-    _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
+    audioService.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
   }
 
   Future<void> _updateRepeatPreference(bool value) async {
     setState(() {
       _isRepeat = value;
-      _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
+      audioService.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
     });
     await StorageService.saveAudioRepeat(value);
   }
@@ -823,14 +823,15 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   // قائمة الصوتيات المعروضة بناءً على القسم والبحث
   List<Supplication> filteredSupplications = [];
 
-  // مشغل الصوت
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  // خدمة الصوت المشتركة
+  late final AudioService audioService;
+
+  // اشتراكات حالة المشغل وتشغيله
+  StreamSubscription<ProcessingState>? _processingStateSubscription;
+  StreamSubscription<bool>? _playingStreamSubscription;
 
   // لتتبع الصوت الجاري تشغيله
   Supplication? _currentSupplication;
-
-  // كاش لتخزين روابط الصوت المستخرجة من يوتيوب لتسريع التحميل
-  final Map<String, String> _youtubeCache = {};
 
   // إعلانات AdMob
   BannerAd? _bannerAd;
@@ -855,26 +856,31 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    _loadPlaybackPreferences();
-
+    audioService = getIt<AudioService>();
     _sleepTimerService = getIt<SleepTimerService>();
     _favoritesService = getIt<AudioFavoritesService>();
 
+    _loadPlaybackPreferences();
+
     filteredSupplications =
-    List<Supplication>.from(audioCategories[_selectedCategory] ?? []);
+        List<Supplication>.from(audioCategories[_selectedCategory] ?? []);
 
     _appLifecycleReactor = AppLifecycleReactor(appOpenAdManager);
     WidgetsBinding.instance.addObserver(_appLifecycleReactor);
 
     // الاستماع لانتهاء الصوت للتشغيل التلقائي (AutoNext)
-    _audioPlayer.processingStateStream.listen((processingState) {
-      if (processingState == ProcessingState.completed && _isAutoNext) {
-        _playNext();
-      }
-    });
+    _processingStateSubscription =
+        audioService.audioPlayer.processingStateStream.listen(
+      (processingState) {
+        if (processingState == ProcessingState.completed && _isAutoNext) {
+          _playNext();
+        }
+      },
+    );
 
     loadLastCategory();
-    _audioPlayer.playingStream.listen((_) {
+    _playingStreamSubscription =
+        audioService.audioPlayer.playingStream.listen((_) {
       setState(() {});
     });
 
@@ -907,7 +913,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(_appLifecycleReactor);
-    _audioPlayer.dispose();
+    _processingStateSubscription?.cancel();
+    _playingStreamSubscription?.cancel();
     _bannerAd?.dispose();
     _interstitialAd?.dispose();
     _rewardedAd?.dispose();
@@ -1045,117 +1052,55 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     }
   }
 
-  /// دالة تشغيل الصوت مع دعم روابط يوتيوب (وباستخدام الكاش لتسريع التحميل)
+  /// دالة تشغيل الصوت مع الاعتماد على خدمة الصوت المشتركة
   Future<void> playAudio(Supplication supp) async {
     setState(() {
       _currentSupplication = supp;
     });
 
-    // إذا كان الصوت متوفرًا محليًا:
-    if (supp.isLocalAudio) {
-      try {
-        await _audioPlayer.setAudioSource(
-          AudioSource.asset(
-            supp.audioUrl,
-            tag: MediaItem(id: supp.audioUrl, title: supp.title),
-          ),
-        );
-        _audioPlayer.play();
-        return;
-      } catch (e) {
-        print("Error playing local audio: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('خطأ في تشغيل الصوت المحلي.')));
-        return;
-      }
-    }
-
-    // إذا كان الصوت قد تم تنزيله سابقاً:
     final Directory dir = await getApplicationSupportDirectory();
     final String filePath = '${dir.path}/${supp.title}.mp3';
-    if (await File(filePath).exists()) {
+    final bool isDownloaded = await File(filePath).exists();
+
+    if (isDownloaded) {
       _markSupplicationAsDownloaded(supp);
-      try {
-        await _audioPlayer.setAudioSource(
-          AudioSource.file(
-            filePath,
-            tag: MediaItem(id: filePath, title: supp.title),
-          ),
-        );
-        _audioPlayer.play();
-        return;
-      } catch (e) {
-        print("Error playing downloaded audio: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('خطأ في تشغيل الملف الصوتي المحمل.')));
+    }
+
+    final bool requiresNetwork = !supp.isLocalAudio && !isDownloaded;
+    if (requiresNetwork) {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('لا يوجد إنترنت.')));
         return;
       }
     }
 
-    // التحقق من الاتصال بالإنترنت عند الحاجة
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('لا يوجد إنترنت.')));
-      return;
+    bool showLoading = false;
+    if (requiresNetwork &&
+        (supp.audioUrl.contains('youtube.com') ||
+            supp.audioUrl.contains('youtu.be'))) {
+      showLoading = true;
+      showLoadingDialog("جاري تجهيز الصوت ...");
     }
 
-    // تحديد مصدر التحميل (يوتيوب أو رابط مباشر)
-    String source;
-    if (supp.audioUrl.contains("youtube.com") ||
-        supp.audioUrl.contains("youtu.be")) {
-      final String? videoId = extractYoutubeVideoId(supp.audioUrl);
-      if (videoId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('رابط تحميل غير صالح.')));
-        return;
-      }
-      // إذا كان الرابط مخزناً في الكاش
-      if (_youtubeCache.containsKey(videoId)) {
-        source = _youtubeCache[videoId]!;
-      } else {
-        showLoadingDialog("جاري تجهيز الصوت ...");
-        final yt = YoutubeExplode();
-        try {
-          final manifest = await yt.videos.streamsClient.getManifest(videoId);
-          final audioStreamInfo = manifest.audioOnly.withHighestBitrate();
-          source = audioStreamInfo.url.toString();
-          _youtubeCache[videoId] = source;
-        } catch (e) {
-          print("Error extracting YouTube audio: $e");
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('خطأ في استخراج الصوت حاول مرة آخرى.')));
-          yt.close();
-          Navigator.pop(context);
-          return;
-        }
-        yt.close();
-        Navigator.pop(context);
-      }
-    } else {
-      // رابط مباشر
-      source = supp.audioUrl;
-    }
-
-    // تشغيل الصوت
     try {
-      await _audioPlayer.setAudioSource(
-        AudioSource.uri(
-          Uri.parse(source),
-          tag: MediaItem(id: source, title: supp.title),
-        ),
-      );
-      _audioPlayer.play();
+      await audioService.setAudioSource(supp);
+      await audioService.play();
     } catch (e) {
       print("Error playing audio: $e");
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('خطأ في تشغيل الصوت.')));
+    } finally {
+      if (showLoading && mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
     }
   }
 
   /// إيقاف الصوت
   void pauseAudio() {
-    _audioPlayer.pause();
+    audioService.pause();
     setState(() {});
   }
 
@@ -1427,23 +1372,25 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   }
 
   void _rewind10() {
-    final Duration current = _audioPlayer.position;
+    final Duration current = audioService.audioPlayer.position;
     final Duration newPosition = current - const Duration(seconds: 10);
-    _audioPlayer.seek(newPosition < Duration.zero ? Duration.zero : newPosition);
+    audioService
+        .seek(newPosition < Duration.zero ? Duration.zero : newPosition);
   }
 
   void _forward10() {
-    final Duration current = _audioPlayer.position;
-    final Duration duration = _audioPlayer.duration ?? Duration.zero;
+    final Duration current = audioService.audioPlayer.position;
+    final Duration duration = audioService.audioPlayer.duration ?? Duration.zero;
     final Duration newPosition = current + const Duration(seconds: 10);
-    _audioPlayer.seek(newPosition > duration ? duration : newPosition);
+    audioService
+        .seek(newPosition > duration ? duration : newPosition);
   }
 
   void _togglePlayPause() {
-    if (_audioPlayer.playing) {
-      _audioPlayer.pause();
+    if (audioService.audioPlayer.playing) {
+      audioService.pause();
     } else {
-      _audioPlayer.play();
+      audioService.play();
     }
     setState(() {});
   }
@@ -1684,9 +1631,10 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                       _sleepTimerService.cancelTimer();
                     }
 
-                    if (_audioPlayer.playing ||
-                        _audioPlayer.processingState != ProcessingState.idle) {
-                      await _audioPlayer.stop();
+                    if (audioService.audioPlayer.playing ||
+                        audioService.audioPlayer.processingState !=
+                            ProcessingState.idle) {
+                      await audioService.stop();
                     }
 
                     if (!mounted) {
@@ -1703,11 +1651,11 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             ),
             // شريط تمرير للتحكم في موقع التشغيل
             StreamBuilder<Duration>(
-              stream: _audioPlayer.positionStream,
+              stream: audioService.audioPlayer.positionStream,
               builder: (context, snapshot) {
                 final Duration position = snapshot.data ?? Duration.zero;
                 final Duration duration =
-                    _audioPlayer.duration ?? Duration.zero;
+                    audioService.audioPlayer.duration ?? Duration.zero;
                 return Column(
                   children: [
                     Slider(
@@ -1719,7 +1667,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                           .toDouble()
                           .clamp(0.0, duration.inSeconds.toDouble()),
                       onChanged: (value) {
-                        _audioPlayer.seek(Duration(seconds: value.toInt()));
+                        audioService
+                            .seek(Duration(seconds: value.toInt()));
                       },
                       activeColor: Colors.white,
                       inactiveColor: Colors.white70,
@@ -1786,11 +1735,13 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 ),
                 IconButton(
                   icon: Icon(
-                    _audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+                    audioService.audioPlayer.playing
+                        ? Icons.pause
+                        : Icons.play_arrow,
                     color: Colors.white,
                   ),
                   onPressed: _togglePlayPause,
-                  tooltip: _audioPlayer.playing ? 'إيقاف' : 'تشغيل',
+                  tooltip: audioService.audioPlayer.playing ? 'إيقاف' : 'تشغيل',
                 ),
                 IconButton(
                   icon: const Icon(Icons.forward_10, color: Colors.white),
@@ -2053,7 +2004,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                             final bool isCurrentSupplication =
                                 _currentSupplication?.title == supp.title;
                             final bool isPlayingCurrent =
-                                isCurrentSupplication && _audioPlayer.playing;
+                                isCurrentSupplication &&
+                                    audioService.audioPlayer.playing;
                             final bool isAvailableOffline =
                                 supp.isLocalAudio ||
                                     _isSupplicationDownloaded(supp);
