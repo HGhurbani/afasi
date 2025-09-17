@@ -1579,6 +1579,18 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         : sleepTimerMinutes != null
             ? 'المؤقت متوقف - لن يتم إيقاف الصوت تلقائيًا (آخر مدة: ${sleepTimerMinutes} دقيقة).'
             : 'مؤقت النوم متوقف - لن يتم إيقاف الصوت تلقائيًا.';
+    final colorScheme = Theme.of(context).colorScheme;
+    final actionButtonStyle = ElevatedButton.styleFrom(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+    );
+    final activeSleepTimerStyle = ElevatedButton.styleFrom(
+      backgroundColor: colorScheme.secondaryContainer,
+      foregroundColor: colorScheme.onSecondaryContainer,
+      side: BorderSide(
+        color: colorScheme.onSecondaryContainer.withOpacity(0.3),
+      ),
+    );
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Container(
@@ -1677,10 +1689,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   },
                   icon: const Icon(Icons.menu_book),
                   label: const Text("قراءة"),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Theme.of(context).primaryColor,
-                    backgroundColor: Colors.white,
-                  ),
+                  style: actionButtonStyle,
                 ),
                 const SizedBox(width: 12), // مسافة بين الزرين
                 ElevatedButton.icon(
@@ -1689,13 +1698,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   label: Text(
                     isSleepTimerActive ? "مؤقت النوم (مفعل)" : "مؤقت النوم",
                   ),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor:
-                        isSleepTimerActive ? Colors.white : Theme.of(context).primaryColor,
-                    backgroundColor: isSleepTimerActive ? accentBlue : Colors.white,
-                    side:
-                        isSleepTimerActive ? const BorderSide(color: Colors.white70) : null,
-                  ),
+                  style:
+                      isSleepTimerActive ? activeSleepTimerStyle : actionButtonStyle,
                 ),
               ],
             ),
