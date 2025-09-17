@@ -2045,26 +2045,54 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             // قائمة العناصر + إعلانات
             Expanded(
               child: filteredSupplications.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.3),
+                  ? Builder(
+                      builder: (context) {
+                        final bool isSearching =
+                            _searchController.text.trim().isNotEmpty;
+                        final bool isFavoritesEmpty =
+                            _selectedCategory == 'المفضلة' && !isSearching;
+
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.3),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                isFavoritesEmpty
+                                    ? 'لم تضف أي مفضلات بعد'
+                                    : 'لم يتم العثور على نتائج',
+                                style:
+                                    Theme.of(context).textTheme.titleMedium,
+                              ),
+                              if (isFavoritesEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  'استكشف الأقسام الأخرى واضغط على أيقونة القلب لحفظ ما تحب هنا.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.7),
+                                      ),
+                                ),
+                              ],
+                            ],
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'لم يتم العثور على نتائج',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     )
                   : ListView.builder(
                       // نزيد العدد لإدراج إعلانات بين العناصر
