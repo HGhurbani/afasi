@@ -37,6 +37,8 @@ void main() {
     when(() => repository.fetchPrayerTimes())
         .thenAnswer((_) async => testPrayerTimes);
     when(() => notificationService.initialize()).thenAnswer((_) async {});
+    when(() => notificationService.requestNotificationPermission())
+        .thenAnswer((_) async => true);
     when(() =>
             notificationService.schedulePrayerNotifications(testPrayerTimes))
         .thenAnswer((_) async {});
@@ -86,6 +88,7 @@ void main() {
 
     final loadedState = emittedStates.last;
     expect(loadedState.notificationsEnabled, isTrue);
+    verify(() => notificationService.requestNotificationPermission()).called(1);
     verify(() => notificationService.cancelAll()).called(1);
     verify(() =>
             notificationService.schedulePrayerNotifications(testPrayerTimes))
@@ -106,6 +109,7 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('notificationsScheduled'), isTrue);
+    verify(() => notificationService.requestNotificationPermission()).called(1);
     verify(() => notificationService.cancelAll()).called(1);
     verify(() =>
             notificationService.schedulePrayerNotifications(testPrayerTimes))
@@ -143,6 +147,30 @@ void main() {
     expect(errorState.errorMessage,
         'لا يمكن جدولة التنبيهات قبل تحميل أوقات الصلاة.');
     expect(errorState.notificationsEnabled, isFalse);
+  });
+
+  test('toggleNotifications emits error when notification permission denied',
+      () async {
+    await cubit.initialize();
+    emittedStates.clear();
+
+    when(() => notificationService.requestNotificationPermission())
+        .thenAnswer((_) async => false);
+
+    await cubit.toggleNotifications();
+
+    expect(emittedStates.length, 1);
+    final errorState = emittedStates.single;
+    expect(errorState.notificationsEnabled, isFalse);
+    expect(
+      errorState.errorMessage,
+      'تم رفض إذن الإشعارات. يرجى تفعيل الإذن من إعدادات النظام للسماح بالتنبيهات.',
+    );
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('notificationsScheduled'), isNull);
+    verify(() => notificationService.requestNotificationPermission()).called(1);
+    verifyNever(() =>
+        notificationService.schedulePrayerNotifications(testPrayerTimes));
   });
 
   test('refreshPrayerTimes reloads times and schedules notifications when enabled',
