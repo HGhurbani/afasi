@@ -62,6 +62,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
 
   void showSleepTimerDialog() {
     final sleepTimerOptions = [5, 10, 15, 30, 45, 60];
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     int selectedMinutes = _sleepTimerService.minutes ?? 15;
     if (!sleepTimerOptions.contains(selectedMinutes)) {
       selectedMinutes = 15;
@@ -98,21 +99,33 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 ],
               ),
               actions: [
+                if (_sleepTimerService.isActive)
+                  TextButton(
+                    onPressed: () {
+                      _sleepTimerService.cancelTimer();
+                      setState(() {});
+                      Navigator.pop(context);
+                      scaffoldMessenger.showSnackBar(
+                        const SnackBar(content: Text('تم إيقاف مؤقت النوم')),
+                      );
+                    },
+                    child: const Text('إيقاف المؤقت'),
+                  ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text('إلغاء'),
+                  child: const Text('إلغاء'),
                 ),
                 TextButton(
                   onPressed: () {
                     setSleepTimer(selectedMinutes);
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    scaffoldMessenger.showSnackBar(
                       SnackBar(content: Text('سيتم إيقاف الصوت بعد $selectedMinutes دقيقة')),
                     );
                   },
-                  child: Text('تفعيل'),
+                  child: const Text('تفعيل'),
                 ),
               ],
             );
@@ -1559,6 +1572,13 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   }
 
   Widget _buildAudioPlayer() {
+    final bool isSleepTimerActive = _sleepTimerService.isActive;
+    final int? sleepTimerMinutes = _sleepTimerService.minutes;
+    final String sleepTimerStatusText = isSleepTimerActive
+        ? 'سيتم إيقاف التشغيل بعد ${sleepTimerMinutes ?? 0} دقيقة.'
+        : sleepTimerMinutes != null
+            ? 'المؤقت متوقف - لن يتم إيقاف الصوت تلقائيًا (آخر مدة: ${sleepTimerMinutes} دقيقة).'
+            : 'مؤقت النوم متوقف - لن يتم إيقاف الصوت تلقائيًا.';
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Container(
@@ -1666,10 +1686,15 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 ElevatedButton.icon(
                   onPressed: showSleepTimerDialog,
                   icon: const Icon(Icons.timer),
-                  label: const Text("مؤقت النوم"),
+                  label: Text(
+                    isSleepTimerActive ? "مؤقت النوم (مفعل)" : "مؤقت النوم",
+                  ),
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Theme.of(context).primaryColor,
-                    backgroundColor: Colors.white,
+                    foregroundColor:
+                        isSleepTimerActive ? Colors.white : Theme.of(context).primaryColor,
+                    backgroundColor: isSleepTimerActive ? accentBlue : Colors.white,
+                    side:
+                        isSleepTimerActive ? const BorderSide(color: Colors.white70) : null,
                   ),
                 ),
               ],
@@ -1709,6 +1734,15 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   tooltip: 'التالي',
                 ),
               ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              sleepTimerStatusText,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             // صف مفاتيح التبديل (التكرار، تشغيل التالي تلقائي)
