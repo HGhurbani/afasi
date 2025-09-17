@@ -12,6 +12,7 @@ import 'package:timezone/data/latest.dart' as tz;
 
 import '../core/di/injection.dart';
 import '../core/services/storage_service.dart';
+import '../core/constants/app_constants.dart';
 import '../features/adhkar_reminder/data/services/adhkar_reminder_service.dart';
 import '../features/prayer_times/data/services/prayer_notification_service.dart';
 import 'home_page.dart';
@@ -64,11 +65,13 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   bool _isDarkMode = false;
+  RewardedAd? _rewardedAd;
 
   @override
   void initState() {
     super.initState();
     _loadTheme();
+    _loadRewardedAd();
   }
 
   Future<void> _loadTheme() async {
@@ -105,6 +108,59 @@ class MyAppState extends State<MyApp> {
   }
 
   bool get isDarkMode => _isDarkMode;
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AppConstants.rewardedAdUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) => setState(() => _rewardedAd = ad),
+        onAdFailedToLoad: (error) => setState(() => _rewardedAd = null),
+      ),
+    );
+  }
+
+  void _showRewardedAd() {
+    final ad = _rewardedAd;
+    if (ad != null) {
+      ad.show(onUserEarnedReward: (ad, reward) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('شكراً لدعمك!')));
+        _loadRewardedAd();
+      });
+      _rewardedAd = null;
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('الإعلان غير متوفر حالياً.')));
+      _loadRewardedAd();
+    }
+  }
+
+  Future<void> confirmAndShowRewardedAd() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تأكيد'),
+        content: const Text(
+          'يرجى التأكيد بأنك ستشاهد الإعلان لدعم التطبيق والمساعدة في تطويره. هل أنت متأكد؟',
+          textDirection: TextDirection.rtl,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('لا'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('نعم'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      _showRewardedAd();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +12,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'package:afasi/app/ads_widgets.dart';
@@ -21,13 +19,9 @@ import 'package:afasi/core/constants/app_constants.dart';
 import 'package:afasi/core/di/injection.dart';
 import 'package:afasi/core/models/supplication.dart';
 import 'package:afasi/core/services/storage_service.dart';
-import 'package:afasi/features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import 'package:afasi/features/audio/domain/services/audio_favorites_service.dart';
 import 'package:afasi/features/audio/domain/services/sleep_timer_service.dart';
-import 'package:afasi/features/prayer_times/presentation/pages/prayer_times_page.dart';
-import 'package:afasi/features/tasbih/presentation/pages/tasbih_page.dart';
-import 'package:afasi/features/wallpapers/cubit/wallpapers_cubit.dart';
-import 'package:afasi/features/wallpapers/presentation/pages/wallpapers_page.dart';
+// Removed drawer-related imports
 
 class AudioPageArguments {
   final bool isDarkMode;
@@ -1522,35 +1516,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     );
   }
 
-  void showInstructions() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('تعليمات الاستخدام'),
-        content: SingleChildScrollView(
-          child: const Text(
-            'مرحباً بك في تطبيق مشاري العفاسي.\n\n'
-                'كيفية الاستخدام:\n'
-                '1. استخدم القائمة الجانبية لتحديد قسم الصوتيات (مثل القرآن الكريم، الأناشيد، الأذكار، الأدعية، الرقية الشرعية).\n'
-                '2. استخدم حقل البحث لتصفية قائمة الصوتيات ضمن القسم المحدد.\n'
-                '3. اضغط على زر التشغيل لتشغيل الصوت، وفي حال كان الصوت غير محمّل يتم استخراج الصوت أو تشغيل الصوت المحلي بدون إنترنت.\n'
-                '4. يمكنك تنزيل الصوت للاستماع دون إنترنت عبر زر التنزيل (إذا لم يكن الصوت محلياً)، وإذا كان الصوت متاحاً بالفعل سيظهر زر التحميل باللون الرمادي.\n'
-                '5. عند تشغيل الصوت يظهر مشغل في أسفل الشاشة يحتوي على شريط تمرير للتحكم بموقع التشغيل وأزرار للتحكم (السابق، إعادة 10 ثوانٍ، تشغيل/إيقاف، تقديم 10 ثوانٍ، التالي) مع زر (×) لإغلاق المشغل.\n'
-                '6. اضغط على زر "قراءة" لفتح صفحة قراءة النص مع إمكانية تكبير وتصغير الخط.\n'
-                '7. لإضافة الصوتيات إلى المفضلة، استخدم أيقونة القلب في قائمة الصوتيات. ولعرض قائمة المفضلة، اختر "المفضلة" من القائمة الجانبية.\n'
-                '8. لدعم التطبيق، يمكنك مشاهدة إعلان المكافآت عبر الضغط على أيقونة القلب في شريط التطبيق.\n',
-            textDirection: TextDirection.rtl,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('حسناً'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> checkDownloadedStatus() async {
     final Directory dir = await getApplicationSupportDirectory();
@@ -1605,15 +1570,89 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             ? 'المؤقت متوقف - لن يتم إيقاف الصوت تلقائيًا (آخر مدة: ${sleepTimerMinutes} دقيقة).'
             : 'مؤقت النوم متوقف - لن يتم إيقاف الصوت تلقائيًا.';
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final actionButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: colorScheme.primaryContainer,
-      foregroundColor: colorScheme.onPrimaryContainer,
+    final ButtonStyle readButtonStyle = ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return colorScheme.primary.withOpacity(0.4);
+        }
+        if (states.contains(MaterialState.pressed)) {
+          return colorScheme.primary.withOpacity(0.85);
+        }
+        if (states.contains(MaterialState.hovered) || states.contains(MaterialState.focused)) {
+          return colorScheme.primary.withOpacity(0.92);
+        }
+        return colorScheme.primary;
+      }),
+      foregroundColor: MaterialStateProperty.all<Color>(colorScheme.onPrimary),
+      overlayColor:
+          MaterialStateProperty.all<Color>(colorScheme.onPrimary.withOpacity(0.08)),
+      elevation: MaterialStateProperty.resolveWith<double>((states) {
+        if (states.contains(MaterialState.pressed)) return 0;
+        return 1;
+      }),
+      padding: MaterialStateProperty.all<EdgeInsets>(
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
-    final activeSleepTimerStyle = ElevatedButton.styleFrom(
-      backgroundColor: colorScheme.secondaryContainer,
-      foregroundColor: colorScheme.onSecondaryContainer,
-      side: BorderSide(
-        color: colorScheme.onSecondaryContainer.withOpacity(0.3),
+
+    final ButtonStyle sleepTimerButtonStyle = ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return colorScheme.secondary.withOpacity(0.4);
+        }
+        if (states.contains(MaterialState.pressed)) {
+          return colorScheme.secondary.withOpacity(0.85);
+        }
+        if (states.contains(MaterialState.hovered) || states.contains(MaterialState.focused)) {
+          return colorScheme.secondary.withOpacity(0.92);
+        }
+        return colorScheme.secondary;
+      }),
+      foregroundColor: MaterialStateProperty.all<Color>(colorScheme.onSecondary),
+      overlayColor:
+          MaterialStateProperty.all<Color>(colorScheme.onSecondary.withOpacity(0.08)),
+      elevation: MaterialStateProperty.resolveWith<double>((states) {
+        if (states.contains(MaterialState.pressed)) return 0;
+        return 1;
+      }),
+      padding: MaterialStateProperty.all<EdgeInsets>(
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+
+    final ButtonStyle activeSleepTimerStyle = ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.pressed)) {
+          return colorScheme.secondaryContainer.withOpacity(0.9);
+        }
+        if (states.contains(MaterialState.hovered) || states.contains(MaterialState.focused)) {
+          return colorScheme.secondaryContainer.withOpacity(0.95);
+        }
+        return colorScheme.secondaryContainer;
+      }),
+      foregroundColor:
+          MaterialStateProperty.all<Color>(colorScheme.onSecondaryContainer),
+      overlayColor: MaterialStateProperty.all<Color>(
+        colorScheme.onSecondaryContainer.withOpacity(0.06),
+      ),
+      side: MaterialStateProperty.all<BorderSide>(
+        BorderSide(color: colorScheme.onSecondaryContainer.withOpacity(0.35)),
+      ),
+      elevation: MaterialStateProperty.resolveWith<double>((states) {
+        if (states.contains(MaterialState.pressed)) return 0;
+        return 0.5;
+      }),
+      padding: MaterialStateProperty.all<EdgeInsets>(
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
     return Directionality(
@@ -1714,7 +1753,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   },
                   icon: const Icon(Icons.menu_book),
                   label: const Text("قراءة"),
-                  style: actionButtonStyle,
+                  style: readButtonStyle,
                 ),
                 const SizedBox(width: 12), // مسافة بين الزرين
                 ElevatedButton.icon(
@@ -1723,8 +1762,9 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                   label: Text(
                     isSleepTimerActive ? "مؤقت النوم (مفعل)" : "مؤقت النوم",
                   ),
-                  style:
-                      isSleepTimerActive ? activeSleepTimerStyle : actionButtonStyle,
+                  style: isSleepTimerActive
+                      ? activeSleepTimerStyle
+                      : sleepTimerButtonStyle,
                 ),
               ],
             ),
@@ -1840,11 +1880,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.info_outline, color: Colors.white),
-              onPressed: showInstructions,
-              tooltip: 'تعليمات الاستخدام',
-            ),
-            IconButton(
               icon: const Icon(Icons.volunteer_activism, color: Colors.white),
               onPressed: () {
                 confirmAndShowRewardedAd();
@@ -1862,175 +1897,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             ),
           ],
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: colorScheme.primary),
-                child: const Center(
-                  child: Text(
-                    'الشيخ مشاري العفاسي',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.book, color: colorScheme.primary),
-                title: const Text("القرآن الكريم"),
-                onTap: () => updateCategory("القرآن الكريم"),
-              ),
-              ListTile(
-                leading: Icon(Icons.music_note, color: colorScheme.primary),
-                title: const Text("الأناشيد"),
-                onTap: () => updateCategory("الأناشيد"),
-              ),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.personPraying,
-                    color: colorScheme.primary),
-                title: const Text("الأذكار"),
-                onTap: () => updateCategory("الأذكار"),
-              ),
-              ListTile(
-                leading: Icon(Icons.front_hand,
-                    color: colorScheme.primary),
-                title: const Text("الأدعية"),
-                onTap: () => updateCategory("الأدعية"),
-              ),
-              ListTile(
-                leading: Icon(Icons.dark_mode, color: colorScheme.primary),
-                title: const Text("رمضانيات"),
-                onTap: () => updateCategory("رمضانيات"),
-              ),
-              ListTile(
-                leading: Icon(Icons.healing, color: colorScheme.primary),
-                title: const Text("الرقية الشرعية"),
-                onTap: () => updateCategory("الرقية الشرعية"),
-              ),
-              ListTile(
-                leading: Icon(Icons.favorite, color: colorScheme.primary),
-                title: const Text("المفضلة"),
-                onTap: () => updateCategory("المفضلة"),
-              ),
-              const Divider(),
-              ListTile(
-                leading: Icon(Icons.image, color: colorScheme.primary),
-                title: const Text("الصور والخلفيات"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider(
-                        create: (_) => getIt<WallpapersCubit>()..initialize(),
-                        child: const WallpapersPage(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.alarm_on, color: colorScheme.primary),
-                title: const Text("منبة الأذكار"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdhkarReminderPage(),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.mosque, color: colorScheme.primary),
-                title: const Text("أوقات الصلاة"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PrayerTimesPage(),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.spa, color: colorScheme.primary),
-                title: const Text("المسبحة الإلكترونية"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TasbihPage()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.volunteer_activism,
-                    color: colorScheme.primary),
-                title: const Text("ادعم التطبيق"),
-                onTap: () {
-                  Navigator.pop(context);
-                  confirmAndShowRewardedAd();
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: Icon(Icons.star, color: colorScheme.primary),
-                title: const Text("قيّم التطبيق"),
-                onTap: () async {
-                  Navigator.pop(context); // لإغلاق القائمة الجانبية
-                  // هذا مثال لرابط متجر Google Play؛ عدّله وفق رابط تطبيقك
-                  final Uri uri = Uri.parse(
-                    'https://play.google.com/store/apps/details?id=com.azkar.doaa.alafasi',
-                  );
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  } else {
-                    // يمكنك إظهار رسالة في حال لم ينجح الرابط
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('لا يمكن فتح صفحة التقييم.')),
-                    );
-                  }
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.shop, color: colorScheme.primary),
-                title: const Text("تطبيق القرآن الكريم"),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final Uri url = Uri.parse(
-                      'https://play.google.com/store/apps/details?id=com.quran.kareem.islamic');
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('لا يمكن فتح الرابط.')),
-                    );
-                  }
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.help, color: colorScheme.primary),
-                title: const Text("تعليمات الاستخدام"),
-                onTap: () {
-                  Navigator.pop(context);
-                  showInstructions();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.privacy_tip,
-                    color: colorScheme.primary),
-                title: const Text("سياسة الخصوصية"),
-                onTap: () {
-                  Navigator.pop(context);
-                  showPrivacyPolicyDialog();
-                },
-              ),
-            ],
-          ),
-        ),
+        // Drawer removed as per request.
         body: Column(
           children: [
             // مربع البحث
@@ -2067,7 +1934,9 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                         Icon(
                           _iconForCategory(category),
                           size: 16,
-                          color: isSelected ? Colors.white : null,
+                          color: isSelected
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -2076,10 +1945,18 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                         ),
                       ],
                     ),
+                    showCheckmark: true,
+                    checkmarkColor: Colors.white,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     selectedColor: colorScheme.primary,
-                    backgroundColor: colorScheme.surfaceVariant,
+                    backgroundColor: Colors.transparent,
+                    shape: StadiumBorder(
+                      side: BorderSide(
+                        color: isSelected ? colorScheme.primary : colorScheme.outline,
+                      ),
+                    ),
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : null,
+                      color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                     ),
                     onSelected: (_) => updateCategory(category),
                   );
@@ -2203,11 +2080,26 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                               color: isPlayingCurrent
                                   ? colorScheme.primaryContainer
                                   : null,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withOpacity(0.15),
+                                ),
+                              ),
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               child: ListTile(
+                                dense: true,
+                                visualDensity: const VisualDensity(
+                                  horizontal: 0,
+                                  vertical: -1,
+                                ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 8,
@@ -2221,40 +2113,21 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                     checkAndShowInterstitialAd();
                                   }
                                 },
-                                leading: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (isPlayingCurrent)
-                                      SizedBox(
-                                        height: double.infinity,
-                                        child: Container(
-                                          width: 4,
-                                          decoration: BoxDecoration(
-                                            color: colorScheme.primary,
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                          ),
-                                        ),
-                                      ),
-                                    if (isPlayingCurrent)
-                                      const SizedBox(width: 8),
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor: circleAvatarBackground,
-                                      child: Icon(
-                                        isPlayingCurrent
-                                            ? Icons.graphic_eq
-                                            : supp.icon,
-                                        color: circleAvatarIconColor,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
+                                leading: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: circleAvatarBackground,
+                                  child: Icon(
+                                    isPlayingCurrent ? Icons.graphic_eq : supp.icon,
+                                    color: circleAvatarIconColor,
+                                    size: 20,
+                                  ),
                                 ),
                                 title: Text(
                                   supp.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                     color: isPlayingCurrent
                                         ? colorScheme.onPrimaryContainer
                                         : null,
@@ -2288,29 +2161,17 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                       },
                                       tooltip: 'تشغيل/إيقاف',
                                     ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.download,
-                                        color: isAvailableOffline
-                                            ? Colors.grey
-                                            : primaryActionColor,
+                                    if (!isAvailableOffline)
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.download,
+                                          color: primaryActionColor,
+                                        ),
+                                        onPressed: () {
+                                          downloadAudio(supp);
+                                        },
+                                        tooltip: 'تحميل الصوت',
                                       ),
-                                      onPressed: isAvailableOffline
-                                          ? () {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'الصوت متاح بالفعل دون إنترنت.',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          : () {
-                                              downloadAudio(supp);
-                                            },
-                                      tooltip: 'تحميل الصوت',
-                                    ),
                                     IconButton(
                                       icon: Icon(
                                         _favoritesService.isFavorite(supp)

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/di/injection.dart';
 import '../core/services/storage_service.dart';
 import '../core/constants/app_constants.dart';
+import 'app.dart';
 import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import '../features/audio/presentation/pages/audio_page.dart';
 import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
@@ -134,6 +135,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Removed unused bottom sheets after moving to dedicated pages.
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -217,6 +220,20 @@ class _HomePageState extends State<HomePage> {
         color: const Color(0xFF4CAF50),
         onTap: _openQuranAppStore,
       ),
+      _HomeFeatureCardData(
+        title: 'تعليمات الاستخدام',
+        description: 'تعرف على كيفية الاستفادة من ميزات التطبيق خطوة بخطوة.',
+        icon: Icons.help_outline,
+        color: const Color(0xFF607D8B),
+        onTap: () => Navigator.pushNamed(context, '/usage-instructions'),
+      ),
+      _HomeFeatureCardData(
+        title: 'سياسة الخصوصية',
+        description: 'اقرأ كيف نحافظ على بياناتك وخصوصيتك داخل التطبيق.',
+        icon: Icons.privacy_tip,
+        color: const Color(0xFF795548),
+        onTap: () => Navigator.pushNamed(context, '/privacy-policy'),
+      ),
     ];
 
     return Directionality(
@@ -228,6 +245,11 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(fontFamily: 'Tajawal'),
           ),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.volunteer_activism, color: Colors.white),
+              onPressed: () => myAppKey.currentState?.confirmAndShowRewardedAd(),
+              tooltip: 'تبرع بمشاهدة إعلان',
+            ),
             IconButton(
               onPressed: widget.onToggleTheme,
               tooltip: 'تغيير الوضع',
@@ -509,3 +531,5 @@ class _FavoritesSection extends StatelessWidget {
     );
   }
 }
+
+// Removed unused _InfoSheet widget after migrating to dedicated pages.

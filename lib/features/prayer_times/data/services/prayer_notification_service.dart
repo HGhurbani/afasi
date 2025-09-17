@@ -34,7 +34,7 @@ class PrayerNotificationService {
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidImplementation != null) {
-      final granted = await androidImplementation.requestPermission();
+      final granted = await androidImplementation.requestNotificationsPermission();
       return granted ?? true;
     }
 
