@@ -38,4 +38,24 @@ void main() {
     await StorageService.saveTheme(false);
     expect(StorageService.getTheme(), isFalse);
   });
+
+  test('persists and restores repeat preference', () async {
+    expect(StorageService.getAudioRepeat(), isFalse);
+
+    await StorageService.saveAudioRepeat(true);
+    expect(StorageService.getAudioRepeat(), isTrue);
+
+    await StorageService.saveAudioRepeat(false);
+    expect(StorageService.getAudioRepeat(), isFalse);
+  });
+
+  test('persists and restores auto-next preference', () async {
+    expect(StorageService.getAudioAutoNext(), isFalse);
+
+    await StorageService.saveAudioAutoNext(true);
+    expect(StorageService.getAudioAutoNext(), isTrue);
+
+    await StorageService.saveAudioAutoNext(false);
+    expect(StorageService.getAudioAutoNext(), isFalse);
+  });
 }

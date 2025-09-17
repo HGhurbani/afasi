@@ -15,6 +15,8 @@ class AppConstants {
   static const String lastCategoryKey = 'lastCategory';
   static const String favoritesKey = 'favorites';
   static const String isDarkModeKey = 'isDarkMode';
+  static const String audioRepeatKey = 'audioRepeat';
+  static const String audioAutoNextKey = 'audioAutoNext';
   
   // Default Values
   static const String defaultCategory = "الأذكار";
