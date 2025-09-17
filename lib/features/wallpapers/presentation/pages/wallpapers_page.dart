@@ -236,6 +236,12 @@ class _FullImageViewState extends State<FullImageView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final actionButtonStyle = ElevatedButton.styleFrom(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+    );
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -280,28 +286,19 @@ class _FullImageViewState extends State<FullImageView> {
                     onPressed: () => _handleDownload(context),
                     icon: const Icon(Icons.download),
                     label: const Text('تحميل'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      backgroundColor: Colors.white,
-                    ),
+                    style: actionButtonStyle,
                   ),
                   ElevatedButton.icon(
                     onPressed: () => _handleShare(context),
                     icon: const Icon(Icons.share),
                     label: const Text('مشاركة'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      backgroundColor: Colors.white,
-                    ),
+                    style: actionButtonStyle,
                   ),
                   ElevatedButton.icon(
                     onPressed: () => _showWallpaperOptions(context),
                     icon: const Icon(Icons.wallpaper),
                     label: const Text('تعيين خلفية'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      backgroundColor: Colors.white,
-                    ),
+                    style: actionButtonStyle,
                   ),
                 ],
               ),
