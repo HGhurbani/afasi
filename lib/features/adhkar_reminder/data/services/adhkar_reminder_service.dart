@@ -27,6 +27,9 @@ class AdhkarReminderService {
     required String title,
     required String body,
     required String sound,
+    required String channelId,
+    required String channelName,
+    String? channelDescription,
   }) async {
     await initialize();
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
@@ -43,9 +46,9 @@ class AdhkarReminderService {
     }
 
     final androidDetails = AndroidNotificationDetails(
-      'adhkar_channel',
-      'أذكار',
-      channelDescription: 'تذكيرات أذكار الصباح والمساء',
+      channelId,
+      channelName,
+      channelDescription: channelDescription,
       importance: Importance.max,
       priority: Priority.high,
       sound: RawResourceAndroidNotificationSound(sound.replaceAll('.mp3', '')),
@@ -67,7 +70,16 @@ class AdhkarReminderService {
     );
   }
 
-  Future<void> cancelReminder(int id) async {
+  Future<void> cancelReminder(int id, {String? channelId}) async {
     await _plugin.cancel(id);
+    if (channelId != null) {
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      try {
+        await androidPlugin?.deleteNotificationChannel(channelId);
+      } catch (_) {
+        // تجاهل في حال عدم توفر الدالة على النظام
+      }
+    }
   }
 }
