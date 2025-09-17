@@ -20,6 +20,7 @@ import 'package:afasi/app/ads_widgets.dart';
 import 'package:afasi/core/constants/app_constants.dart';
 import 'package:afasi/core/di/injection.dart';
 import 'package:afasi/core/models/supplication.dart';
+import 'package:afasi/core/services/storage_service.dart';
 import 'package:afasi/features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import 'package:afasi/features/audio/domain/services/audio_favorites_service.dart';
 import 'package:afasi/features/audio/domain/services/sleep_timer_service.dart';
@@ -174,6 +175,28 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
 
   void _markSupplicationAsDownloaded(Supplication supp) {
     _downloadedSupplications.add(supp.title);
+  }
+
+  void _loadPlaybackPreferences() {
+    _isRepeat = StorageService.getAudioRepeat();
+    _isAutoNext = StorageService.getAudioAutoNext();
+
+    _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
+  }
+
+  Future<void> _updateRepeatPreference(bool value) async {
+    setState(() {
+      _isRepeat = value;
+      _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
+    });
+    await StorageService.saveAudioRepeat(value);
+  }
+
+  Future<void> _updateAutoNextPreference(bool value) async {
+    setState(() {
+      _isAutoNext = value;
+    });
+    await StorageService.saveAudioAutoNext(value);
   }
 
   /// تعريف أقسام الصوتيات مع عينات لكل قسم
@@ -837,6 +860,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    _loadPlaybackPreferences();
 
     _sleepTimerService = getIt<SleepTimerService>();
     _favoritesService = getIt<AudioFavoritesService>();
@@ -1756,10 +1781,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 Switch(
                   value: _isRepeat,
                   onChanged: (bool value) {
-                    setState(() {
-                      _isRepeat = value;
-                      _audioPlayer.setLoopMode(_isRepeat ? LoopMode.one : LoopMode.off);
-                    });
+                    unawaited(_updateRepeatPreference(value));
                   },
                   activeColor: accentBlue,
                   activeTrackColor: Colors.white,
@@ -1778,9 +1800,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 Switch(
                   value: _isAutoNext,
                   onChanged: (bool value) {
-                    setState(() {
-                      _isAutoNext = value;
-                    });
+                    unawaited(_updateAutoNextPreference(value));
                   },
                   activeColor: accentBlue,
                   activeTrackColor: Colors.white,

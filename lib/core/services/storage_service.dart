@@ -36,4 +36,20 @@ class StorageService {
   static bool? getTheme() {
     return _prefs?.getBool(AppConstants.isDarkModeKey);
   }
+
+  static Future<void> saveAudioRepeat(bool isRepeatEnabled) async {
+    await _prefs?.setBool(AppConstants.audioRepeatKey, isRepeatEnabled);
+  }
+
+  static bool getAudioRepeat() {
+    return _prefs?.getBool(AppConstants.audioRepeatKey) ?? false;
+  }
+
+  static Future<void> saveAudioAutoNext(bool isAutoNextEnabled) async {
+    await _prefs?.setBool(AppConstants.audioAutoNextKey, isAutoNextEnabled);
+  }
+
+  static bool getAudioAutoNext() {
+    return _prefs?.getBool(AppConstants.audioAutoNextKey) ?? false;
+  }
 }
