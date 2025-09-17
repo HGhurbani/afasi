@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -81,7 +82,27 @@ class WallpapersPage extends StatelessWidget {
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(img.imageUrl, fit: BoxFit.cover),
+                    child: CachedNetworkImage(
+                      imageUrl: img.imageUrl,
+                      fit: BoxFit.cover,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) => Container(
+                        color: Colors.grey.shade200,
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(
+                          value: downloadProgress.progress,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey.shade200,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                          size: 32,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -223,7 +244,30 @@ class _FullImageViewState extends State<FullImageView> {
           children: [
             Expanded(
               child: Center(
-                child: Image.network(widget.img.imageUrl),
+                child: CachedNetworkImage(
+                  imageUrl: widget.img.imageUrl,
+                  fit: BoxFit.contain,
+                  progressIndicatorBuilder:
+                      (context, url, downloadProgress) => SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: CircularProgressIndicator(
+                      value: downloadProgress.progress,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.broken_image,
+                        color: Colors.grey,
+                        size: 64,
+                      ),
+                      SizedBox(height: 8),
+                      Text('تعذر تحميل الصورة'),
+                    ],
+                  ),
+                ),
               ),
             ),
             Container(
