@@ -1979,75 +1979,100 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             ),
             // قائمة العناصر + إعلانات
             Expanded(
-              child: ListView.builder(
-                // نزيد العدد لإدراج إعلانات بين العناصر
-                itemCount: filteredSupplications.length +
-                    (filteredSupplications.length ~/ 3),
-                itemBuilder: (context, index) {
-                  // عرض إعلان كل 4 عناصر تقريباً
-                  if (index > 0 && index % 4 == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: NativeAdWidget(),
-                    );
-                  }
-
-                  // تعويض الفروقات التي سببتها الإعلانات
-                  final int itemIndex = index - (index ~/ 4);
-
-                  // حماية إضافية لو حصل index خارج النطاق
-                  if (itemIndex >= filteredSupplications.length) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final Supplication supp = filteredSupplications[itemIndex];
-
-                  return Card(
-                    margin:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      onTap: () {
-                        // في حالة كان نفس الملف يشغل حالياً
-                        if (_currentSupplication != null &&
-                            _currentSupplication!.title == supp.title &&
-                            _audioPlayer.playing) {
-                          pauseAudio();
-                        } else {
-                          playAudio(supp);
-                          checkAndShowInterstitialAd();
-                        }
-                      },
-                      leading: CircleAvatar(
-                        radius: 20,
-                        backgroundColor:
-                        Theme.of(context).primaryColor.withOpacity(0.1),
-                        child: Icon(
-                          supp.icon,
-                          color: Theme.of(context).primaryColor,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        supp.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        (supp.isLocalAudio || _isSupplicationDownloaded(supp))
-                            ? 'متاح بدون إنترنت'
-                            : 'قم بالتحميل لإستماع بدون إنترنت',
-                        style: TextStyle(
-                          color: (supp.isLocalAudio ||
-                              _isSupplicationDownloaded(supp))
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                      ),
-                      trailing: Wrap(
-                        spacing: 12,
+              child: filteredSupplications.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'لم يتم العثور على نتائج',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      // نزيد العدد لإدراج إعلانات بين العناصر
+                      itemCount: filteredSupplications.length +
+                          (filteredSupplications.length ~/ 3),
+                      itemBuilder: (context, index) {
+                        // عرض إعلان كل 4 عناصر تقريباً
+                        if (index > 0 && index % 4 == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: NativeAdWidget(),
+                          );
+                        }
+
+                        // تعويض الفروقات التي سببتها الإعلانات
+                        final int itemIndex = index - (index ~/ 4);
+
+                        // حماية إضافية لو حصل index خارج النطاق
+                        if (itemIndex >= filteredSupplications.length) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final Supplication supp = filteredSupplications[itemIndex];
+
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            onTap: () {
+                              // في حالة كان نفس الملف يشغل حالياً
+                              if (_currentSupplication != null &&
+                                  _currentSupplication!.title == supp.title &&
+                                  _audioPlayer.playing) {
+                                pauseAudio();
+                              } else {
+                                playAudio(supp);
+                                checkAndShowInterstitialAd();
+                              }
+                            },
+                            leading: CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.1),
+                              child: Icon(
+                                supp.icon,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                            ),
+                            title: Text(
+                              supp.title,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              (supp.isLocalAudio ||
+                                      _isSupplicationDownloaded(supp))
+                                  ? 'متاح بدون إنترنت'
+                                  : 'قم بالتحميل لإستماع بدون إنترنت',
+                              style: TextStyle(
+                                color: (supp.isLocalAudio ||
+                                        _isSupplicationDownloaded(supp))
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            ),
+                            trailing: Wrap(
+                              spacing: 12,
+                              children: [
+                                IconButton(
                             icon: Icon(
                               _currentSupplication != null &&
                                   _currentSupplication!.title ==
