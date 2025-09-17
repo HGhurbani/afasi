@@ -29,7 +29,11 @@ class StorageService {
     await _prefs?.setBool(AppConstants.isDarkModeKey, isDarkMode);
   }
 
-  static bool getTheme() {
-    return _prefs?.getBool(AppConstants.isDarkModeKey) ?? false;
+  static bool hasThemePreference() {
+    return _prefs?.containsKey(AppConstants.isDarkModeKey) ?? false;
+  }
+
+  static bool? getTheme() {
+    return _prefs?.getBool(AppConstants.isDarkModeKey);
   }
 }

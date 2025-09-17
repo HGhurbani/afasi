@@ -28,9 +28,14 @@ void main() {
   });
 
   test('persists and restores theme mode', () async {
-    expect(StorageService.getTheme(), isFalse);
+    expect(StorageService.getTheme(), isNull);
+    expect(StorageService.hasThemePreference(), isFalse);
 
     await StorageService.saveTheme(true);
+    expect(StorageService.hasThemePreference(), isTrue);
     expect(StorageService.getTheme(), isTrue);
+
+    await StorageService.saveTheme(false);
+    expect(StorageService.getTheme(), isFalse);
   });
 }

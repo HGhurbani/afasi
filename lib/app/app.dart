@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -72,9 +73,28 @@ class MyAppState extends State<MyApp> {
 
   Future<void> _loadTheme() async {
     await StorageService.init();
+    final storedTheme = StorageService.getTheme();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (storedTheme != null) {
+      setState(() {
+        _isDarkMode = storedTheme;
+      });
+      return;
+    }
+
+    final platformBrightness =
+        SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    final inferredDarkMode = platformBrightness == Brightness.dark;
+
     setState(() {
-      _isDarkMode = StorageService.getTheme();
+      _isDarkMode = inferredDarkMode;
     });
+
+    await StorageService.saveTheme(inferredDarkMode);
   }
 
   void toggleTheme() async {
