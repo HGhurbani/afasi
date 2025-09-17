@@ -22,6 +22,7 @@ class WallpapersPage extends StatelessWidget {
         ),
         body: BlocBuilder<WallpapersCubit, WallpapersState>(
           builder: (context, state) {
+            final colorScheme = Theme.of(context).colorScheme;
             if (state.status == WallpapersStatus.loading ||
                 state.status == WallpapersStatus.initial) {
               return const Center(child: CircularProgressIndicator());
@@ -38,7 +39,10 @@ class WallpapersPage extends StatelessWidget {
                       child: Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontFamily: 'Tajawal'),
+                        style: TextStyle(
+                          fontFamily: 'Tajawal',
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -86,22 +90,28 @@ class WallpapersPage extends StatelessWidget {
                       imageUrl: img.imageUrl,
                       fit: BoxFit.cover,
                       progressIndicatorBuilder:
-                          (context, url, downloadProgress) => Container(
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator(
-                          value: downloadProgress.progress,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.broken_image,
-                          color: Colors.grey,
-                          size: 32,
-                        ),
-                      ),
+                          (context, url, downloadProgress) {
+                        final scheme = Theme.of(context).colorScheme;
+                        return Container(
+                          color: scheme.surfaceVariant,
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(
+                            value: downloadProgress.progress,
+                          ),
+                        );
+                      },
+                      errorWidget: (context, url, error) {
+                        final scheme = Theme.of(context).colorScheme;
+                        return Container(
+                          color: scheme.surfaceVariant,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.broken_image,
+                            color: scheme.onSurface,
+                            size: 32,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );
