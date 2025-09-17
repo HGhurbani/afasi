@@ -131,7 +131,7 @@ class AdhkarReminderCubit extends Cubit<AdhkarReminderState> {
         await _scheduleMorningReminder(updatedState.morningTime);
         emit(state.copyWith(statusMessage: 'تم تفعيل تذكير أذكار الصباح'));
       } else {
-        await _service.cancelReminder(100);
+        await _service.cancelReminder(100, channelId: 'adhkar_morning_channel');
         emit(state.copyWith(statusMessage: 'تم تعطيل تذكير أذكار الصباح'));
       }
     } catch (e) {
@@ -153,7 +153,7 @@ class AdhkarReminderCubit extends Cubit<AdhkarReminderState> {
         await _scheduleEveningReminder(updatedState.eveningTime);
         emit(state.copyWith(statusMessage: 'تم تفعيل تذكير أذكار المساء'));
       } else {
-        await _service.cancelReminder(101);
+        await _service.cancelReminder(101, channelId: 'adhkar_evening_channel');
         emit(state.copyWith(statusMessage: 'تم تعطيل تذكير أذكار المساء'));
       }
     } catch (e) {
@@ -228,6 +228,9 @@ class AdhkarReminderCubit extends Cubit<AdhkarReminderState> {
       title: 'أذكار الصباح',
       body: 'حان وقت أذكار الصباح',
       sound: 'mishary1.mp3',
+      channelId: 'adhkar_morning_channel',
+      channelName: 'قناة أذكار الصباح',
+      channelDescription: 'تنبيهات يومية لأذكار الصباح',
     );
   }
 
@@ -238,6 +241,9 @@ class AdhkarReminderCubit extends Cubit<AdhkarReminderState> {
       title: 'أذكار المساء',
       body: 'حان وقت أذكار المساء',
       sound: 'mishary2.mp3',
+      channelId: 'adhkar_evening_channel',
+      channelName: 'قناة أذكار المساء',
+      channelDescription: 'تنبيهات يومية لأذكار المساء',
     );
   }
 

@@ -39,8 +39,14 @@ void main() {
           title: any(named: 'title'),
           body: any(named: 'body'),
           sound: any(named: 'sound'),
+          channelId: any(named: 'channelId'),
+          channelName: any(named: 'channelName'),
+          channelDescription: any(named: 'channelDescription'),
         )).thenAnswer((_) async {});
-    when(() => service.cancelReminder(any())).thenAnswer((_) async {});
+    when(() => service.cancelReminder(
+          any(),
+          channelId: any(named: 'channelId'),
+        )).thenAnswer((_) async {});
 
     cubit = TestAdhkarReminderCubit(service: service);
     emittedStates = [];
@@ -75,6 +81,9 @@ void main() {
           title: any(named: 'title'),
           body: any(named: 'body'),
           sound: any(named: 'sound'),
+          channelId: 'adhkar_morning_channel',
+          channelName: 'قناة أذكار الصباح',
+          channelDescription: 'تنبيهات يومية لأذكار الصباح',
         )).called(1);
   });
 
@@ -99,7 +108,10 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('morningEnabled'), isFalse);
 
-    verify(() => service.cancelReminder(100)).called(1);
+    verify(() => service.cancelReminder(
+          100,
+          channelId: 'adhkar_morning_channel',
+        )).called(1);
   });
 
   test('toggleEvening enables reminder and schedules notification', () async {
@@ -125,6 +137,9 @@ void main() {
           title: any(named: 'title'),
           body: any(named: 'body'),
           sound: any(named: 'sound'),
+          channelId: 'adhkar_evening_channel',
+          channelName: 'قناة أذكار المساء',
+          channelDescription: 'تنبيهات يومية لأذكار المساء',
         )).called(1);
   });
 
@@ -156,6 +171,9 @@ void main() {
           title: any(named: 'title'),
           body: any(named: 'body'),
           sound: any(named: 'sound'),
+          channelId: 'adhkar_morning_channel',
+          channelName: 'قناة أذكار الصباح',
+          channelDescription: 'تنبيهات يومية لأذكار الصباح',
         )).called(1);
   });
 }
