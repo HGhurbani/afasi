@@ -2087,127 +2087,166 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                           return const SizedBox.shrink();
                         }
 
-                        final Supplication supp = filteredSupplications[itemIndex];
+                        final Supplication supp =
+                            filteredSupplications[itemIndex];
+                        final bool isCurrentSupplication =
+                            _currentSupplication?.title == supp.title;
+                        final bool isPlayingCurrent =
+                            isCurrentSupplication && _audioPlayer.playing;
+                        final ColorScheme colorScheme =
+                            Theme.of(context).colorScheme;
+                        final bool isAvailableOffline =
+                            supp.isLocalAudio ||
+                                _isSupplicationDownloaded(supp);
+                        final Color subtitleColor = isPlayingCurrent
+                            ? colorScheme.onPrimaryContainer.withOpacity(0.8)
+                            : (isAvailableOffline ? Colors.green : Colors.red);
 
                         return Card(
+                          color: isPlayingCurrent
+                              ? colorScheme.primaryContainer
+                              : null,
                           margin: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             onTap: () {
                               // في حالة كان نفس الملف يشغل حالياً
-                              if (_currentSupplication != null &&
-                                  _currentSupplication!.title == supp.title &&
-                                  _audioPlayer.playing) {
+                              if (isPlayingCurrent) {
                                 pauseAudio();
                               } else {
                                 playAudio(supp);
                                 checkAndShowInterstitialAd();
                               }
                             },
-                            leading: CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.1),
-                              child: Icon(
-                                supp.icon,
-                                color: Theme.of(context).primaryColor,
-                                size: 20,
-                              ),
+                            leading: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isPlayingCurrent)
+                                  SizedBox(
+                                    height: double.infinity,
+                                    child: Container(
+                                      width: 4,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primary,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                if (isPlayingCurrent) const SizedBox(width: 8),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: isPlayingCurrent
+                                      ? colorScheme.primary.withOpacity(0.15)
+                                      : Theme.of(context)
+                                          .primaryColor
+                                          .withOpacity(0.1),
+                                  child: Icon(
+                                    isPlayingCurrent
+                                        ? Icons.graphic_eq
+                                        : supp.icon,
+                                    color: isPlayingCurrent
+                                        ? colorScheme.primary
+                                        : Theme.of(context).primaryColor,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
                             ),
                             title: Text(
                               supp.title,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isPlayingCurrent
+                                    ? colorScheme.onPrimaryContainer
+                                    : null,
+                              ),
                             ),
                             subtitle: Text(
-                              (supp.isLocalAudio ||
-                                      _isSupplicationDownloaded(supp))
+                              isAvailableOffline
                                   ? 'متاح بدون إنترنت'
                                   : 'قم بالتحميل لإستماع بدون إنترنت',
                               style: TextStyle(
-                                color: (supp.isLocalAudio ||
-                                        _isSupplicationDownloaded(supp))
-                                    ? Colors.green
-                                    : Colors.red,
+                                color: subtitleColor,
                               ),
                             ),
                             trailing: Wrap(
                               spacing: 12,
                               children: [
                                 IconButton(
-                            icon: Icon(
-                              _currentSupplication != null &&
-                                  _currentSupplication!.title ==
-                                      supp.title &&
-                                  _audioPlayer.playing
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            onPressed: () {
-                              if (_currentSupplication != null &&
-                                  _currentSupplication!.title == supp.title &&
-                                  _audioPlayer.playing) {
-                                pauseAudio();
-                              } else {
-                                playAudio(supp);
-                                checkAndShowInterstitialAd();
-                              }
-                            },
-                            tooltip: 'تشغيل/إيقاف',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.download,
-                              color: (supp.isLocalAudio ||
-                                  _isSupplicationDownloaded(supp))
-                                  ? Colors.grey
-                                  : Theme.of(context).primaryColor,
-                            ),
-                            onPressed: (supp.isLocalAudio ||
-                                    _isSupplicationDownloaded(supp))
-                                ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'الصوت متاح بالفعل دون إنترنت.'),
+                                  icon: Icon(
+                                    isPlayingCurrent
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    color: isPlayingCurrent
+                                        ? colorScheme.primary
+                                        : Theme.of(context).primaryColor,
+                                  ),
+                                  onPressed: () {
+                                    if (isPlayingCurrent) {
+                                      pauseAudio();
+                                    } else {
+                                      playAudio(supp);
+                                      checkAndShowInterstitialAd();
+                                    }
+                                  },
+                                  tooltip: 'تشغيل/إيقاف',
                                 ),
-                              );
-                            }
-                                : () {
-                              downloadAudio(supp);
-                            },
-                            tooltip: 'تحميل الصوت',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              _favoritesService.isFavorite(supp)
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: Colors.red,
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.download,
+                                    color: isAvailableOffline
+                                        ? Colors.grey
+                                        : Theme.of(context).primaryColor,
+                                  ),
+                                  onPressed: isAvailableOffline
+                                      ? () {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'الصوت متاح بالفعل دون إنترنت.',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      : () {
+                                          downloadAudio(supp);
+                                        },
+                                  tooltip: 'تحميل الصوت',
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    _favoritesService.isFavorite(supp)
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    final updatedFavorites =
+                                        await _favoritesService
+                                            .toggleFavorite(supp);
+                                    setState(() {
+                                      favorites
+                                        ..clear()
+                                        ..addAll(updatedFavorites);
+                                      if (_selectedCategory == "المفضلة") {
+                                        filteredSupplications =
+                                            List<Supplication>.from(favorites);
+                                      }
+                                    });
+                                  },
+                                  tooltip: 'إضافة إلى المفضلة',
+                                ),
+                              ],
                             ),
-                            onPressed: () async {
-                              final updatedFavorites =
-                                  await _favoritesService.toggleFavorite(supp);
-                              setState(() {
-                                favorites
-                                  ..clear()
-                                  ..addAll(updatedFavorites);
-                                if (_selectedCategory == "المفضلة") {
-                                  filteredSupplications =
-                                      List<Supplication>.from(favorites);
-                                }
-                              });
-                            },
-                            tooltip: 'إضافة إلى المفضلة',
                           ),
-                        ],
-                      ),
-                    ),
-                  );
+                        );
                 },
               ),
             ),
