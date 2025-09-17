@@ -86,6 +86,7 @@ void main() {
 
     final loadedState = emittedStates.last;
     expect(loadedState.notificationsEnabled, isTrue);
+    verify(() => notificationService.cancelAll()).called(1);
     verify(() =>
             notificationService.schedulePrayerNotifications(testPrayerTimes))
         .called(1);
@@ -105,6 +106,7 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('notificationsScheduled'), isTrue);
+    verify(() => notificationService.cancelAll()).called(1);
     verify(() =>
             notificationService.schedulePrayerNotifications(testPrayerTimes))
         .called(1);
@@ -129,7 +131,7 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('notificationsScheduled'), isFalse);
-    verify(() => notificationService.cancelAll()).called(1);
+    verify(() => notificationService.cancelAll()).called(2);
   });
 
   test('toggleNotifications emits error when prayer times are missing',
@@ -178,6 +180,7 @@ void main() {
     expect(refreshedState.errorMessage, isNull);
 
     verify(() => repository.fetchPrayerTimes()).called(2);
+    verify(() => notificationService.cancelAll()).called(2);
     verify(() =>
             notificationService.schedulePrayerNotifications(updatedTimes))
         .called(1);

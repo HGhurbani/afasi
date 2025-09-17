@@ -38,10 +38,6 @@ class PrayerNotificationService {
   }
 
   Future<void> schedulePrayerNotification(String prayerName, DateTime time) async {
-    if (!time.isAfter(DateTime.now())) {
-      return;
-    }
-
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'prayer_channel',
       'Prayer Times',
@@ -60,7 +56,12 @@ class PrayerNotificationService {
       iOS: iosDetails,
     );
 
-    final tz.TZDateTime scheduledDate = tz.TZDateTime.from(time, tz.local);
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime.from(time, tz.local);
+
+    while (!scheduledDate.isAfter(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
 
     await _plugin.zonedSchedule(
       prayerName.hashCode,
@@ -75,6 +76,7 @@ class PrayerNotificationService {
   }
 
   Future<void> cancelAll() async {
+    await initialize();
     await _plugin.cancelAll();
   }
 }
