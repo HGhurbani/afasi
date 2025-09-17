@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/di/injection.dart';
 import '../core/services/storage_service.dart';
+import '../core/constants/app_constants.dart';
 import '../features/adhkar_reminder/presentation/pages/adhkar_reminder_page.dart';
 import '../features/audio/presentation/pages/audio_page.dart';
 import '../features/prayer_times/presentation/pages/prayer_times_page.dart';
@@ -26,11 +29,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> _audioFavorites = const <String>[];
+  RewardedAd? _rewardedAd;
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
+    _loadRewardedAd();
   }
 
   void _loadFavorites() {
@@ -64,6 +69,71 @@ class _HomePageState extends State<HomePage> {
     await StorageService.saveFavorites(const <String>[]);
   }
 
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AppConstants.rewardedAdUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) => setState(() => _rewardedAd = ad),
+        onAdFailedToLoad: (error) => setState(() => _rewardedAd = null),
+      ),
+    );
+  }
+
+  Future<void> _confirmAndShowRewardedAd() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تأكيد'),
+        content: const Text(
+          'يرجى التأكيد بأنك ستشاهد الإعلان لدعم التطبيق والمساعدة في تطويره. هل أنت متأكد؟',
+          textDirection: TextDirection.rtl,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('لا'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('نعم'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      _showRewardedAd();
+    }
+  }
+
+  void _showRewardedAd() {
+    final ad = _rewardedAd;
+    if (ad != null) {
+      ad.show(onUserEarnedReward: (ad, reward) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('شكراً لدعمك!')));
+        _loadRewardedAd();
+      });
+      _rewardedAd = null;
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('الإعلان غير متوفر حالياً.')));
+      _loadRewardedAd();
+    }
+  }
+
+  Future<void> _openQuranAppStore() async {
+    final Uri uri = Uri.parse(
+        'https://play.google.com/store/apps/details?id=com.quran.kareem.islamic');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا يمكن فتح الرابط.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -71,7 +141,7 @@ class _HomePageState extends State<HomePage> {
     final features = <_HomeFeatureCardData>[
       _HomeFeatureCardData(
         title: 'مكتبة الصوتيات',
-        description: 'استمع للقرآن الكريم والأناشيد والأدعية.',
+        description: 'استمع للأذكار والقرآن الكريم والأناشيد والأدعية والرقية الشرعية وغيره.',
         icon: Icons.library_music,
         color: theme.primaryColor,
         onTap: () {
@@ -87,7 +157,7 @@ class _HomePageState extends State<HomePage> {
       ),
       _HomeFeatureCardData(
         title: 'الصور والخلفيات',
-        description: 'مجموعة من الخلفيات الإسلامية المميزة.',
+        description: 'مجموعة من الخلفيات الإسلامية المميزة والمتجددة , تابعها كل يوم.',
         icon: Icons.image,
         color: Colors.purple,
         onTap: () {
@@ -113,7 +183,7 @@ class _HomePageState extends State<HomePage> {
       ),
       _HomeFeatureCardData(
         title: 'أوقات الصلاة',
-        description: 'تعرف على أوقات الصلاة وفق مدينتك الحالية.',
+        description: 'تعرف على أوقات الصلاة وفق مدينتك الحالية وتفعيل إشعارات الأذان.',
         icon: Icons.mosque,
         color: Colors.teal,
         onTap: () {
@@ -131,6 +201,20 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(builder: (_) => const TasbihPage()),
           );
         },
+      ),
+      _HomeFeatureCardData(
+        title: 'ادعم التطبيق',
+        description: 'ساهم في تطوير التطبيق بمشاهدة إعلان مكافآت , ولا تنسى من عمل هذا بشكل يومي للإستمرار في تطوير التطبيق.',
+        icon: Icons.volunteer_activism,
+        color: Colors.redAccent,
+        onTap: _confirmAndShowRewardedAd,
+      ),
+      _HomeFeatureCardData(
+        title: 'تطبيق القرآن الكريم',
+        description: 'انتقل إلى متجر Play لتحميل التطبيق.',
+        icon: Icons.shop,
+        color: Colors.green,
+        onTap: _openQuranAppStore,
       ),
     ];
 
@@ -165,17 +249,42 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (_audioFavorites.isNotEmpty) const SizedBox(height: 16),
               Expanded(
-                child: GridView.builder(
+                child: ListView.separated(
                   itemCount: features.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.95,
-                  ),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final feature = features[index];
-                    return _FeatureCard(feature: feature);
+                    return Material(
+                      color: feature.color.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: feature.onTap,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: feature.color,
+                              child: Icon(feature.icon, color: Colors.white),
+                            ),
+                            title: Text(
+                              feature.title,
+                              style: const TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Text(
+                              feature.description,
+                              style: const TextStyle(fontFamily: 'Tajawal'),
+                            ),
+                            trailing: const Icon(Icons.chevron_left),
+                            onTap: feature.onTap,
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -201,70 +310,6 @@ class _HomeFeatureCardData {
     required this.color,
     required this.onTap,
   });
-}
-
-class _FeatureCard extends StatelessWidget {
-  final _HomeFeatureCardData feature;
-
-  const _FeatureCard({required this.feature});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: feature.onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Ink(
-        decoration: BoxDecoration(
-          color: feature.color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: feature.color.withOpacity(0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: CircleAvatar(
-                  backgroundColor: feature.color,
-                  child: Icon(feature.icon, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                feature.title,
-                style: const TextStyle(
-                  fontFamily: 'Tajawal',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Text(
-                  feature.description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: 'Tajawal',
-                      ) ??
-                      const TextStyle(
-                        fontFamily: 'Tajawal',
-                      ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: TextButton(
-                  onPressed: feature.onTap,
-                  child: const Text('فتح'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _FavoritesSection extends StatelessWidget {

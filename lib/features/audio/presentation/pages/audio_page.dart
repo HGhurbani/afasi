@@ -909,7 +909,10 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
           ? List<Supplication>.from(favorites)
           : List<Supplication>.from(audioCategories[category] ?? []);
     });
-    Navigator.pop(context);
+    final scaffoldState = Scaffold.maybeOf(context);
+    if (scaffoldState?.isDrawerOpen ?? false) {
+      Navigator.pop(context);
+    }
   }
 
   /// عرض مؤشر الانتظار مع رسالة
@@ -1158,7 +1161,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
 
     String urlToDownload = supp.audioUrl;
     http.Client? client;
-    bool clientClosed = false;
+    // Removed clientClosed; we close the client once when done/cancelled
     StreamSubscription<List<int>>? subscription;
     bool isCancelled = false;
     bool isProgressDialogOpen = false;
@@ -1239,10 +1242,9 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                         await subscription!.cancel();
                         subscription = null;
                       }
-                      if (client != null && !clientClosed) {
-                        client!.close();
-                        clientClosed = true;
-                      }
+                      try {
+                        client?.close();
+                      } catch (_) {}
                       if (isProgressDialogOpen) {
                         Navigator.of(dialogContext).pop();
                         isProgressDialogOpen = false;
@@ -1313,10 +1315,9 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         isProgressDialogOpen = false;
       }
 
-      if (client != null && !clientClosed) {
-        client!.close();
-        clientClosed = true;
-      }
+      try {
+        client.close();
+      } catch (_) {}
 
       // حفظ الملف
       final Directory dir = await getApplicationSupportDirectory();
@@ -1334,10 +1335,9 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         Navigator.pop(context);
         isProgressDialogOpen = false;
       }
-      if (client != null && !clientClosed) {
-        client!.close();
-        clientClosed = true;
-      }
+      try {
+        client?.close();
+      } catch (_) {}
       if (!isCancelled) {
         print("Download error: $e");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1535,6 +1535,27 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         caseSensitive: false, multiLine: false);
     final Match? match = regExp.firstMatch(url);
     return match != null ? match.group(1) : null;
+  }
+
+  IconData _iconForCategory(String category) {
+    switch (category) {
+      case "القرآن الكريم":
+        return FontAwesomeIcons.quran;
+      case "الأناشيد":
+        return Icons.music_note;
+      case "الأذكار":
+        return FontAwesomeIcons.personPraying;
+      case "الأدعية":
+        return Icons.front_hand;
+      case "رمضانيات":
+        return Icons.nightlight_round;
+      case "الرقية الشرعية":
+        return FontAwesomeIcons.shieldHalved;
+      case "المفضلة":
+        return Icons.favorite;
+      default:
+        return Icons.playlist_play;
+    }
   }
 
   Widget _buildAudioPlayer() {
@@ -1977,6 +1998,50 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 onChanged: filterSearchResults,
               ),
             ),
+            // شريط أقسام أفقي للتنقل السريع بين الفئات
+            SizedBox(
+              height: 46,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemBuilder: (context, index) {
+                  final List<String> categories = <String>[
+                    ...audioCategories.keys,
+                    'المفضلة',
+                  ];
+                  final String category = categories[index];
+                  final bool isSelected = category == _selectedCategory;
+                  return ChoiceChip(
+                    selected: isSelected,
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _iconForCategory(category),
+                          size: 16,
+                          color: isSelected ? Colors.white : null,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          category,
+                          style: const TextStyle(fontFamily: 'Tajawal'),
+                        ),
+                      ],
+                    ),
+                    selectedColor: Theme.of(context).primaryColor,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceVariant,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : null,
+                    ),
+                    onSelected: (_) => updateCategory(category),
+                  );
+                },
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemCount: audioCategories.keys.length + 1,
+              ),
+            ),
+            const SizedBox(height: 8),
             // قائمة العناصر + إعلانات
             Expanded(
               child: filteredSupplications.isEmpty
