@@ -1076,14 +1076,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
       }
     }
 
-    bool showLoading = false;
-    if (requiresNetwork &&
-        (supp.audioUrl.contains('youtube.com') ||
-            supp.audioUrl.contains('youtu.be'))) {
-      showLoading = true;
-      showLoadingDialog("جاري تجهيز الصوت ...");
-    }
-
     try {
       // Build playlist based on current filtered list to enable next/prev in notification
       final int initialIndex = filteredSupplications
@@ -1098,10 +1090,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
       print("Error playing audio: $e");
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('خطأ في تشغيل الصوت.')));
-    } finally {
-      if (showLoading && mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
     }
   }
 
