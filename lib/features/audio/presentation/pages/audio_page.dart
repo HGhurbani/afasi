@@ -1579,7 +1579,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         : sleepTimerMinutes != null
             ? 'المؤقت متوقف - لن يتم إيقاف الصوت تلقائيًا (آخر مدة: ${sleepTimerMinutes} دقيقة).'
             : 'مؤقت النوم متوقف - لن يتم إيقاف الصوت تلقائيًا.';
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final actionButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: colorScheme.primaryContainer,
       foregroundColor: colorScheme.onPrimaryContainer,
@@ -1594,7 +1594,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Container(
-        color: Theme.of(context).primaryColor,
+        color: colorScheme.primary,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1808,6 +1808,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final String appBarTitle = _selectedCategory;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -1846,8 +1847,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration:
-                BoxDecoration(color: Theme.of(context).primaryColor),
+                decoration: BoxDecoration(color: colorScheme.primary),
                 child: const Center(
                   child: Text(
                     'الشيخ مشاري العفاسي',
@@ -1856,50 +1856,45 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 ),
               ),
               ListTile(
-                leading:
-                Icon(Icons.book, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.book, color: colorScheme.primary),
                 title: const Text("القرآن الكريم"),
                 onTap: () => updateCategory("القرآن الكريم"),
               ),
               ListTile(
-                leading:
-                Icon(Icons.music_note, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.music_note, color: colorScheme.primary),
                 title: const Text("الأناشيد"),
                 onTap: () => updateCategory("الأناشيد"),
               ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.personPraying,
-                    color: Theme.of(context).primaryColor),
+                    color: colorScheme.primary),
                 title: const Text("الأذكار"),
                 onTap: () => updateCategory("الأذكار"),
               ),
               ListTile(
                 leading: Icon(Icons.front_hand,
-                    color: Theme.of(context).primaryColor),
+                    color: colorScheme.primary),
                 title: const Text("الأدعية"),
                 onTap: () => updateCategory("الأدعية"),
               ),
               ListTile(
-                leading:
-                Icon(Icons.dark_mode, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.dark_mode, color: colorScheme.primary),
                 title: const Text("رمضانيات"),
                 onTap: () => updateCategory("رمضانيات"),
               ),
               ListTile(
-                leading:
-                Icon(Icons.healing, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.healing, color: colorScheme.primary),
                 title: const Text("الرقية الشرعية"),
                 onTap: () => updateCategory("الرقية الشرعية"),
               ),
               ListTile(
-                leading:
-                Icon(Icons.favorite, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.favorite, color: colorScheme.primary),
                 title: const Text("المفضلة"),
                 onTap: () => updateCategory("المفضلة"),
               ),
               const Divider(),
               ListTile(
-                leading: Icon(Icons.image, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.image, color: colorScheme.primary),
                 title: const Text("الصور والخلفيات"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1915,8 +1910,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 },
               ),
               ListTile(
-                leading:
-                Icon(Icons.alarm_on, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.alarm_on, color: colorScheme.primary),
                 title: const Text("منبة الأذكار"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1929,8 +1923,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 },
               ),
               ListTile(
-                leading:
-                Icon(Icons.mosque, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.mosque, color: colorScheme.primary),
                 title: const Text("أوقات الصلاة"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1943,8 +1936,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 },
               ),
               ListTile(
-                leading:
-                Icon(Icons.spa, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.spa, color: colorScheme.primary),
                 title: const Text("المسبحة الإلكترونية"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1956,7 +1948,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
               ),
               ListTile(
                 leading: Icon(Icons.volunteer_activism,
-                    color: Theme.of(context).primaryColor),
+                    color: colorScheme.primary),
                 title: const Text("ادعم التطبيق"),
                 onTap: () {
                   Navigator.pop(context);
@@ -1965,7 +1957,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
               ),
               const Divider(),
               ListTile(
-                leading: Icon(Icons.star, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.star, color: colorScheme.primary),
                 title: const Text("قيّم التطبيق"),
                 onTap: () async {
                   Navigator.pop(context); // لإغلاق القائمة الجانبية
@@ -1984,8 +1976,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 },
               ),
               ListTile(
-                leading:
-                Icon(Icons.shop, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.shop, color: colorScheme.primary),
                 title: const Text("تطبيق القرآن الكريم"),
                 onTap: () async {
                   Navigator.pop(context);
@@ -2001,8 +1992,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 },
               ),
               ListTile(
-                leading:
-                Icon(Icons.help, color: Theme.of(context).primaryColor),
+                leading: Icon(Icons.help, color: colorScheme.primary),
                 title: const Text("تعليمات الاستخدام"),
                 onTap: () {
                   Navigator.pop(context);
@@ -2011,7 +2001,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
               ),
               ListTile(
                 leading: Icon(Icons.privacy_tip,
-                    color: Theme.of(context).primaryColor),
+                    color: colorScheme.primary),
                 title: const Text("سياسة الخصوصية"),
                 onTap: () {
                   Navigator.pop(context);
@@ -2066,9 +2056,8 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                         ),
                       ],
                     ),
-                    selectedColor: Theme.of(context).primaryColor,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceVariant,
+                    selectedColor: colorScheme.primary,
+                    backgroundColor: colorScheme.surfaceVariant,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : null,
                     ),
@@ -2168,8 +2157,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                 _currentSupplication?.title == supp.title;
                             final bool isPlayingCurrent =
                                 isCurrentSupplication && _audioPlayer.playing;
-                            final ColorScheme colorScheme =
-                                Theme.of(context).colorScheme;
                             final bool isAvailableOffline =
                                 supp.isLocalAudio ||
                                     _isSupplicationDownloaded(supp);
@@ -2179,6 +2166,18 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                 : (isAvailableOffline
                                     ? Colors.green
                                     : Colors.red);
+                            final Color circleAvatarBackground =
+                                isPlayingCurrent
+                                    ? colorScheme.primaryContainer
+                                    : colorScheme.primaryContainer
+                                        .withOpacity(0.25);
+                            final Color circleAvatarIconColor =
+                                isPlayingCurrent
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.primary;
+                            final Color primaryActionColor = isPlayingCurrent
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.primary;
 
                             return Card(
                               color: isPlayingCurrent
@@ -2221,19 +2220,12 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                       const SizedBox(width: 8),
                                     CircleAvatar(
                                       radius: 20,
-                                      backgroundColor: isPlayingCurrent
-                                          ? colorScheme.primary
-                                              .withOpacity(0.15)
-                                          : Theme.of(context)
-                                              .primaryColor
-                                              .withOpacity(0.1),
+                                      backgroundColor: circleAvatarBackground,
                                       child: Icon(
                                         isPlayingCurrent
                                             ? Icons.graphic_eq
                                             : supp.icon,
-                                        color: isPlayingCurrent
-                                            ? colorScheme.primary
-                                            : Theme.of(context).primaryColor,
+                                        color: circleAvatarIconColor,
                                         size: 20,
                                       ),
                                     ),
@@ -2264,9 +2256,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                         isPlayingCurrent
                                             ? Icons.pause
                                             : Icons.play_arrow,
-                                        color: isPlayingCurrent
-                                            ? colorScheme.primary
-                                            : Theme.of(context).primaryColor,
+                                        color: primaryActionColor,
                                       ),
                                       onPressed: () {
                                         if (isPlayingCurrent) {
@@ -2283,7 +2273,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                                         Icons.download,
                                         color: isAvailableOffline
                                             ? Colors.grey
-                                            : Theme.of(context).primaryColor,
+                                            : primaryActionColor,
                                       ),
                                       onPressed: isAvailableOffline
                                           ? () {
