@@ -80,7 +80,15 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         try {
           await _rescheduleNotifications(times);
         } catch (e) {
-          emit(state.copyWith(errorMessage: e.toString()));
+          if (e is NotificationPermissionDeniedException) {
+            await _prefs?.setBool('notificationsScheduled', false);
+            emit(state.copyWith(
+              notificationsEnabled: false,
+              errorMessage: e.toString(),
+            ));
+          } else {
+            emit(state.copyWith(errorMessage: e.toString()));
+          }
         }
       }
     } catch (e) {
@@ -106,7 +114,15 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         try {
           await _rescheduleNotifications(times);
         } catch (e) {
-          emit(state.copyWith(errorMessage: e.toString()));
+          if (e is NotificationPermissionDeniedException) {
+            await _prefs?.setBool('notificationsScheduled', false);
+            emit(state.copyWith(
+              notificationsEnabled: false,
+              errorMessage: e.toString(),
+            ));
+          } else {
+            emit(state.copyWith(errorMessage: e.toString()));
+          }
         }
       }
     } catch (e) {
@@ -161,7 +177,22 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
   }
 
   Future<void> _rescheduleNotifications(PrayerTimes times) async {
+    final hasPermission =
+        await _notificationService.requestNotificationPermission();
+
+    if (!hasPermission) {
+      throw const NotificationPermissionDeniedException();
+    }
+
     await _notificationService.cancelAll();
     await _notificationService.schedulePrayerNotifications(times);
   }
+}
+
+class NotificationPermissionDeniedException implements Exception {
+  const NotificationPermissionDeniedException();
+
+  @override
+  String toString() =>
+      'تم رفض إذن الإشعارات. يرجى تفعيل الإذن من إعدادات النظام للسماح بالتنبيهات.';
 }

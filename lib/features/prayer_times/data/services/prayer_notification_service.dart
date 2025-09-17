@@ -27,6 +27,20 @@ class PrayerNotificationService {
     _initialized = true;
   }
 
+  Future<bool> requestNotificationPermission() async {
+    await initialize();
+    final androidImplementation = _plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
+      final granted = await androidImplementation.requestPermission();
+      return granted ?? true;
+    }
+
+    return true;
+  }
+
   Future<void> schedulePrayerNotifications(PrayerTimes prayerTimes) async {
     await initialize();
     await schedulePrayerNotification('الفجر', prayerTimes.fajr);
