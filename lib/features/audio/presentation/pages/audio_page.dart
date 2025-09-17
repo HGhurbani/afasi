@@ -61,48 +61,62 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   final Set<String> _downloadedSupplications = {};
 
   void showSleepTimerDialog() {
+    final sleepTimerOptions = [5, 10, 15, 30, 45, 60];
+    int selectedMinutes = _sleepTimerService.minutes ?? 15;
+    if (!sleepTimerOptions.contains(selectedMinutes)) {
+      selectedMinutes = 15;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
-        int selectedMinutes = 15;
-        return AlertDialog(
-          title: Text('مؤقت النوم'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('اختر المدة قبل إيقاف الصوت:'),
-              DropdownButton<int>(
-                value: selectedMinutes,
-                items: [5, 10, 15, 30, 45, 60]
-                    .map((min) => DropdownMenuItem(
-                  child: Text('$min دقيقة'),
-                  value: min,
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  selectedMinutes = value!;
-                },
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text('مؤقت النوم'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('اختر المدة قبل إيقاف الصوت:'),
+                  DropdownButton<int>(
+                    value: selectedMinutes,
+                    items: sleepTimerOptions
+                        .map((min) => DropdownMenuItem(
+                              child: Text('$min دقيقة'),
+                              value: min,
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      setDialogState(() {
+                        selectedMinutes = value;
+                      });
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('إلغاء'),
-            ),
-            TextButton(
-              onPressed: () {
-                setSleepTimer(selectedMinutes);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('سيتم إيقاف الصوت بعد $selectedMinutes دقيقة')),
-                );
-              },
-              child: Text('تفعيل'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('إلغاء'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setSleepTimer(selectedMinutes);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('سيتم إيقاف الصوت بعد $selectedMinutes دقيقة')),
+                    );
+                  },
+                  child: Text('تفعيل'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
