@@ -78,7 +78,7 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
 
       if (notificationsEnabled) {
         try {
-          await _notificationService.schedulePrayerNotifications(times);
+          await _rescheduleNotifications(times);
         } catch (e) {
           emit(state.copyWith(errorMessage: e.toString()));
         }
@@ -104,7 +104,7 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
 
       if (state.notificationsEnabled) {
         try {
-          await _notificationService.schedulePrayerNotifications(times);
+          await _rescheduleNotifications(times);
         } catch (e) {
           emit(state.copyWith(errorMessage: e.toString()));
         }
@@ -137,7 +137,7 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
       ));
     } else {
       try {
-        await _notificationService.schedulePrayerNotifications(times);
+        await _rescheduleNotifications(times);
         await prefs.setBool('notificationsScheduled', true);
         emit(state.copyWith(
           notificationsEnabled: true,
@@ -158,5 +158,10 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
 
   Future<SharedPreferences> _ensurePrefs() async {
     return _prefs ??= await SharedPreferences.getInstance();
+  }
+
+  Future<void> _rescheduleNotifications(PrayerTimes times) async {
+    await _notificationService.cancelAll();
+    await _notificationService.schedulePrayerNotifications(times);
   }
 }
