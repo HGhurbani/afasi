@@ -1562,7 +1562,20 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () {
+                  onPressed: () async {
+                    if (_sleepTimerService.isActive) {
+                      _sleepTimerService.cancelTimer();
+                    }
+
+                    if (_audioPlayer.playing ||
+                        _audioPlayer.processingState != ProcessingState.idle) {
+                      await _audioPlayer.stop();
+                    }
+
+                    if (!mounted) {
+                      return;
+                    }
+
                     setState(() {
                       _currentSupplication = null;
                     });
