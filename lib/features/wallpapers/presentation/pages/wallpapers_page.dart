@@ -61,61 +61,158 @@ class WallpapersPage extends StatelessWidget {
               return const Center(child: Text('لا توجد صور حالياً'));
             }
 
-            return GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    colorScheme.background,
+                    colorScheme.surface,
+                  ],
+                ),
               ),
-              itemCount: state.images.length,
-              itemBuilder: (context, index) {
-                final img = state.images[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BlocProvider.value(
-                          value: context.read<WallpapersCubit>(),
-                          child: FullImageView(img: img),
-                        ),
-                      ),
-                    );
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: img.imageUrl,
-                      fit: BoxFit.cover,
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) {
-                        final scheme = Theme.of(context).colorScheme;
-                        return Container(
-                          color: scheme.surfaceVariant,
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(
-                            value: downloadProgress.progress,
-                          ),
-                        );
-                      },
-                      errorWidget: (context, url, error) {
-                        final scheme = Theme.of(context).colorScheme;
-                        return Container(
-                          color: scheme.surfaceVariant,
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.broken_image,
-                            color: scheme.onSurface,
-                            size: 32,
-                          ),
-                        );
-                      },
+              child: GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: state.images.length,
+                itemBuilder: (context, index) {
+                  final img = state.images[index];
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ),
-                );
-              },
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider.value(
+                              value: context.read<WallpapersCubit>(),
+                              child: FullImageView(img: img),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: img.imageUrl,
+                            fit: BoxFit.cover,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) {
+                              return Container(
+                                color: colorScheme.surfaceVariant,
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      value: downloadProgress.progress,
+                                      color: colorScheme.primary,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'جاري التحميل...',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            errorWidget: (context, url, error) {
+                              return Container(
+                                color: colorScheme.surfaceVariant,
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 32,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'خطأ في التحميل',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          // Gradient overlay for better text visibility
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 60,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.7),
+                                  ],
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      img.title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.fullscreen,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),
@@ -287,30 +384,102 @@ class _FullImageViewState extends State<FullImageView> {
               ),
             ),
             Container(
-              color: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _handleDownload(context),
-                    icon: const Icon(Icons.download),
-                    label: const Text('تحميل'),
-                    style: actionButtonStyle,
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _handleShare(context),
-                    icon: const Icon(Icons.share),
-                    label: const Text('مشاركة'),
-                    style: actionButtonStyle,
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _showWallpaperOptions(context),
-                    icon: const Icon(Icons.wallpaper),
-                    label: const Text('تعيين خلفية'),
-                    style: actionButtonStyle,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.primary,
+                    colorScheme.primary.withOpacity(0.8),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
                   ),
                 ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.img.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Tajawal',
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _handleDownload(context),
+                            icon: const Icon(Icons.download, size: 20),
+                            label: const Text(
+                              'تحميل',
+                              style: TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: actionButtonStyle.copyWith(
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _handleShare(context),
+                            icon: const Icon(Icons.share, size: 20),
+                            label: const Text(
+                              'مشاركة',
+                              style: TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: actionButtonStyle.copyWith(
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showWallpaperOptions(context),
+                            icon: const Icon(Icons.wallpaper, size: 20),
+                            label: const Text(
+                              'خلفية',
+                              style: TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: actionButtonStyle.copyWith(
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             BlocBuilder<WallpapersCubit, WallpapersState>(

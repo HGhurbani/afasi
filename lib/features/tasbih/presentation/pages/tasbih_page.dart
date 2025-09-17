@@ -23,85 +23,203 @@ class _TasbihView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('المسبحة الإلكترونية'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'عدد التسبيحات:',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w500,
-                  color: isDarkMode ? Colors.white70 : Colors.black87,
-                  fontFamily: 'Tajawal',
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: theme.primaryColor, width: 1),
-                ),
-                child: BlocBuilder<TasbihCubit, TasbihState>(
-                  builder: (context, state) {
-                    return Text(
-                      '${state.counter}',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'المسبحة الإلكترونية',
+            style: TextStyle(fontFamily: 'Tajawal'),
+          ),
+          centerTitle: true,
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colorScheme.background,
+                colorScheme.surface,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Header with Islamic decoration
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'سبحان الله وبحمده',
                       style: TextStyle(
-                        fontSize: 72,
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onPrimaryContainer,
                         fontFamily: 'Tajawal',
                       ),
                       textAlign: TextAlign.center,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton.icon(
-                onPressed: () => context.read<TasbihCubit>().increment(),
-                icon: const Icon(Icons.add_circle_outline, size: 28),
-                label: const Text(
-                  'تسبيحة',
-                  style: TextStyle(fontSize: 20, fontFamily: 'Tajawal'),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  elevation: 3,
-                ),
+                  const SizedBox(height: 40),
+                  
+                  // Counter display
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary,
+                          colorScheme.primary.withOpacity(0.8),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: BlocBuilder<TasbihCubit, TasbihState>(
+                        builder: (context, state) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${state.counter}',
+                                style: const TextStyle(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'Tajawal',
+                                ),
+                              ),
+                              const Text(
+                                'تسبيحة',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  fontFamily: 'Tajawal',
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  
+                  // Action buttons
+                  Row(
+                    children: [
+                      // Increment button
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () => context.read<TasbihCubit>().increment(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_circle_outline, size: 28),
+                              SizedBox(width: 8),
+                              Text(
+                                'تسبيحة',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'Tajawal',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      
+                      // Reset button
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => context.read<TasbihCubit>().reset(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: colorScheme.primary,
+                            side: BorderSide(color: colorScheme.primary),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.refresh, size: 24),
+                              SizedBox(height: 4),
+                              Text(
+                                'إعادة',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Tajawal',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  // Tips text
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceVariant.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'اضغط على زر التسبيحة لزيادة العداد واضغط على إعادة لبدء عد جديد',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurfaceVariant,
+                        fontFamily: 'Tajawal',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 15),
-              TextButton.icon(
-                onPressed: () => context.read<TasbihCubit>().reset(),
-                icon: const Icon(Icons.refresh, size: 24),
-                label: const Text(
-                  'إعادة التعيين',
-                  style: TextStyle(fontSize: 16, fontFamily: 'Tajawal'),
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: isDarkMode ? Colors.white70 : Colors.black54,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

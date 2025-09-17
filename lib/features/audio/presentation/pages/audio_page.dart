@@ -2120,7 +2120,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                           ),
                         );
                       },
-                    ),
+                  )
                   : Builder(
                       builder: (context) {
                         const adFrequency = 3;
@@ -2322,13 +2322,15 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                           },
                         );
                       },
-                      ),
-            if (_bannerAd != null)
-              SizedBox(
-                height: _bannerAd!.size.height.toDouble(),
-                width: _bannerAd!.size.width.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
+                ),
+                  ),
+            (_bannerAd != null)
+                ? SizedBox(
+                    height: _bannerAd!.size.height.toDouble(),
+                    width: _bannerAd!.size.width.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
         bottomNavigationBar:
