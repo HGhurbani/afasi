@@ -10,7 +10,7 @@ class UsageInstructionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     const String instructionsText = '''
-مرحباً بك في تطبيق مشاري العفاسي
+مرحباً بك في تطبيق أذكار وأدعية بصوت الشيخ مشاري العفاسي
 
 يحتوي التطبيق على عدة ميزات رئيسية. اتبع الخطوات التالية للاستفادة منها:
 

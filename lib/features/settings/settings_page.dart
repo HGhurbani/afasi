@@ -302,7 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
-      applicationName: 'تطبيق مشاري العفاسي',
+      applicationName: 'تطبيق أذكار وأدعية العفاسي',
       applicationVersion: _appVersion,
       applicationIcon: Container(
         width: 64,

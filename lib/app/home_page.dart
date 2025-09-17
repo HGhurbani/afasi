@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'تطبيق مشاري العفاسي',
+            'تطبيق العفاسي',
             style: TextStyle(fontFamily: 'Tajawal'),
           ),
           actions: [

@@ -132,7 +132,7 @@ class AppConstantsEnhanced {
   static const String notificationChannelDescription = 'تنبيهات الأذكار وأوقات الصلاة';
   
   // App metadata
-  static const String appName = 'تطبيق مشاري العفاسي';
+  static const String appName = 'تطبيق العفاسي';
   static const String appDescription = 'تطبيق إسلامي شامل للأذكار والأدعية والقرآن الكريم';
   static const String developerName = 'فريق التطوير';
   static const String supportEmail = 'support@afasi.app';

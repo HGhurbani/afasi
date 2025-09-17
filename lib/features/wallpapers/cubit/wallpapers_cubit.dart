@@ -51,6 +51,8 @@ class WallpapersCubit extends Cubit<WallpapersState> {
 
   void loadListBannerAd() {
     state.listBannerAd?.dispose();
+    // Clear current banner from state immediately to avoid rendering a disposed/unloaded Ad
+    emit(state.copyWith(listBannerAd: null));
     BannerAd(
       adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,
@@ -75,6 +77,8 @@ class WallpapersCubit extends Cubit<WallpapersState> {
 
   void loadDetailBannerAd() {
     state.detailBannerAd?.dispose();
+    // Clear current detail banner from state immediately to avoid rendering a disposed/unloaded Ad
+    emit(state.copyWith(detailBannerAd: null));
     BannerAd(
       adUnitId: AppConstants.bannerAdUnitId,
       size: AdSize.banner,

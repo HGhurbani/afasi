@@ -344,9 +344,14 @@ class _FullImageViewState extends State<FullImageView> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final actionButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: colorScheme.primaryContainer,
-      foregroundColor: colorScheme.onPrimaryContainer,
+    final RoundedRectangleBorder actionButtonShape =
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
+    final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
+      backgroundColor: colorScheme.surfaceVariant,
+      foregroundColor: colorScheme.onSurfaceVariant,
+      elevation: 0,
+      shape: actionButtonShape,
+      minimumSize: const Size.fromHeight(48),
     );
 
     return Directionality(
@@ -385,21 +390,17 @@ class _FullImageViewState extends State<FullImageView> {
             ),
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withOpacity(0.8),
-                  ],
-                ),
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: SafeArea(
                 top: false,
                 child: Column(
@@ -407,8 +408,8 @@ class _FullImageViewState extends State<FullImageView> {
                   children: [
                     Text(
                       widget.img.title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Tajawal',
@@ -417,61 +418,70 @@ class _FullImageViewState extends State<FullImageView> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _handleDownload(context),
-                            icon: const Icon(Icons.download, size: 20),
-                            label: const Text(
-                              'تحميل',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontWeight: FontWeight.w600,
+                          child: Tooltip(
+                            message: 'تحميل',
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleDownload(context),
+                              icon: const Icon(Icons.download, size: 22),
+                              label: const Text(
+                                'تحميل',
+                                style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            style: actionButtonStyle.copyWith(
-                              padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _handleShare(context),
-                            icon: const Icon(Icons.share, size: 20),
-                            label: const Text(
-                              'مشاركة',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            style: actionButtonStyle.copyWith(
-                              padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(vertical: 12),
+                              style: actionButtonStyle.copyWith(
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                                ),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _showWallpaperOptions(context),
-                            icon: const Icon(Icons.wallpaper, size: 20),
-                            label: const Text(
-                              'خلفية',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontWeight: FontWeight.w600,
+                          child: Tooltip(
+                            message: 'مشاركة',
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleShare(context),
+                              icon: const Icon(Icons.share, size: 22),
+                              label: const Text(
+                                'مشاركة',
+                                style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: actionButtonStyle.copyWith(
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                                ),
                               ),
                             ),
-                            style: actionButtonStyle.copyWith(
-                              padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Tooltip(
+                            message: 'تعيين كخلفية',
+                            child: ElevatedButton.icon(
+                              onPressed: () => _showWallpaperOptions(context),
+                              icon: const Icon(Icons.wallpaper, size: 22),
+                              label: const Text(
+                                'خلفية',
+                                style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: actionButtonStyle.copyWith(
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                                ),
                               ),
                             ),
                           ),
