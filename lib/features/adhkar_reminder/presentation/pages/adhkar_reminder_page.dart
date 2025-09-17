@@ -94,15 +94,24 @@ class _AdhkarReminderView extends StatelessWidget {
       context: context,
       initialTime: initialTime,
       builder: (context, child) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final isDark = theme.brightness == Brightness.dark;
+        final buttonTextColor = isDark ? colorScheme.secondary : colorScheme.primary;
+        final helpTextColor = isDark ? colorScheme.onSurface : colorScheme.onSurfaceVariant;
+
         return Theme(
-          data: Theme.of(context).copyWith(
+          data: theme.copyWith(
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.black,
+                foregroundColor: buttonTextColor,
               ),
             ),
-            timePickerTheme: const TimePickerThemeData(
-              helpTextStyle: TextStyle(color: Colors.black),
+            timePickerTheme: theme.timePickerTheme.copyWith(
+              helpTextStyle: theme.timePickerTheme.helpTextStyle?.copyWith(
+                    color: helpTextColor,
+                  ) ??
+                  TextStyle(color: helpTextColor),
             ),
           ),
           child: child!,
