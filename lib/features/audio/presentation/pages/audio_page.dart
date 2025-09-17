@@ -2189,10 +2189,10 @@ class _TextReaderPageState extends State<TextReaderPage> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: Text(
+              child: SelectableText(
                 widget.content,
                 style:
-                TextStyle(fontSize: _fontSize, fontFamily: 'Tajawal'),
+                    TextStyle(fontSize: _fontSize, fontFamily: 'Tajawal'),
               ),
             ),
           ),
