@@ -1059,11 +1059,24 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
 
   /// عرض إعلان المكافآت
   void showRewardedAd() {
-    if (_rewardedAd != null) {
-      _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('شكراً لدعمك!')));
-        loadRewardedAd();
+    final rewardedAd = _rewardedAd;
+    if (rewardedAd != null) {
+      rewardedAd.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _rewardedAd = null;
+          loadRewardedAd();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _rewardedAd = null;
+          loadRewardedAd();
+        },
+      );
+      _rewardedAd = null;
+      rewardedAd.show(onUserEarnedReward: (ad, reward) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('شكراً لدعمك!')));
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
