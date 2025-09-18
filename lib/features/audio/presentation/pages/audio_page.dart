@@ -919,7 +919,6 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     _interstitialAd?.dispose();
     _rewardedAd?.dispose();
     _searchController.dispose();
-    _sleepTimerService.dispose();
     super.dispose();
   }
 
@@ -1616,9 +1615,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () async {
-                    if (_sleepTimerService.isActive) {
-                      _sleepTimerService.cancelTimer();
-                    }
+                    _sleepTimerService.cancelTimer();
 
                     if (audioService.audioPlayer.playing ||
                         audioService.audioPlayer.processingState !=
