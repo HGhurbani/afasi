@@ -64,8 +64,14 @@ class AppOpenAdManager {
   AppOpenAd? appOpenAd;
   bool isAdAvailable = false;
   bool isShowingAd = false;
+  bool _isLoadingAd = false;
 
   void loadAd() {
+    if (isAdAvailable || isShowingAd || _isLoadingAd) {
+      print("تجاهل تحميل إعلان App Open لأن هناك حملة نشطة.");
+      return;
+    }
+    _isLoadingAd = true;
     AppOpenAd.load(
       adUnitId: AppConstants.appOpenAdUnitId,
       request: const AdRequest(),
@@ -74,9 +80,11 @@ class AppOpenAdManager {
           print("تم تحميل إعلان App Open بنجاح.");
           appOpenAd = ad;
           isAdAvailable = true;
+          _isLoadingAd = false;
         },
         onAdFailedToLoad: (error) {
           print("فشل تحميل إعلان App Open: $error");
+          _isLoadingAd = false;
         },
       ),
     );
