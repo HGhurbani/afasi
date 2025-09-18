@@ -865,6 +865,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
         List<Supplication>.from(audioCategories[_selectedCategory] ?? []);
 
     _appLifecycleReactor = AppLifecycleReactor(appOpenAdManager);
+    appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(_appLifecycleReactor);
 
     // الاستماع لانتهاء الصوت للتشغيل التلقائي (AutoNext)
