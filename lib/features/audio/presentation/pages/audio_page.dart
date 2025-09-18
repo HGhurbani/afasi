@@ -10,7 +10,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'package:afasi/app/ads_widgets.dart';
@@ -923,22 +922,28 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
   }
 
   Future<void> loadLastCategory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastCategory = prefs.getString('lastCategory');
-    if (lastCategory != null && audioCategories.containsKey(lastCategory)) {
+    final lastCategory = StorageService.getLastCategory();
+
+    if (lastCategory == "المفضلة") {
       setState(() {
         _selectedCategory = lastCategory;
-        filteredSupplications = lastCategory == "المفضلة"
-            ? List<Supplication>.from(favorites)
-            : List<Supplication>.from(audioCategories[lastCategory] ?? []);
+        filteredSupplications = List<Supplication>.from(favorites);
+      });
+      return;
+    }
+
+    if (audioCategories.containsKey(lastCategory)) {
+      setState(() {
+        _selectedCategory = lastCategory;
+        filteredSupplications =
+            List<Supplication>.from(audioCategories[lastCategory] ?? []);
       });
     }
   }
 
   /// تحديث القسم المُختار والقائمة المعروضة
   void updateCategory(String category) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('lastCategory', category); // حفظ القسم الأخير
+    await StorageService.saveLastCategory(category); // حفظ القسم الأخير
 
     setState(() {
       _selectedCategory = category;
