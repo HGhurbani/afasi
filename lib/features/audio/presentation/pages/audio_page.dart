@@ -998,7 +998,21 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
       adUnitId: AppConstants.interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) => _interstitialAd = ad,
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+              _interstitialAd = null;
+              loadInterstitialAd();
+            },
+            onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+              _interstitialAd = null;
+              loadInterstitialAd();
+            },
+          );
+          _interstitialAd = ad;
+        },
         onAdFailedToLoad: (error) => _interstitialAd = null,
       ),
     );
@@ -1348,6 +1362,7 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
     // مثال: عرض إعلان بعد كل 5 تشغيلات
     if (_usageCounter >= 5 && _interstitialAd != null) {
       _interstitialAd!.show();
+      _interstitialAd = null;
       _usageCounter = 0;
       loadInterstitialAd();
     }
