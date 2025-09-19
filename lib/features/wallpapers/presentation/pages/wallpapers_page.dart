@@ -109,59 +109,62 @@ class WallpapersPage extends StatelessWidget {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            CachedNetworkImage(
-                              imageUrl: img.imageUrl,
-                              fit: BoxFit.cover,
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) {
-                                return Container(
-                                  color: colorScheme.surfaceVariant,
-                                  alignment: Alignment.center,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CircularProgressIndicator(
-                                        value: downloadProgress.progress,
-                                        color: colorScheme.primary,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'جاري التحميل...',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorScheme.onSurfaceVariant,
-                                          fontFamily: 'Tajawal',
+                            Hero(
+                              tag: img.imageUrl,
+                              child: CachedNetworkImage(
+                                imageUrl: img.imageUrl,
+                                fit: BoxFit.cover,
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) {
+                                  return Container(
+                                    color: colorScheme.surfaceVariant,
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          value: downloadProgress.progress,
+                                          color: colorScheme.primary,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              errorWidget: (context, url, error) {
-                                return Container(
-                                  color: colorScheme.surfaceVariant,
-                                  alignment: Alignment.center,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.broken_image,
-                                        color: colorScheme.onSurfaceVariant,
-                                        size: 32,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'خطأ في التحميل',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorScheme.onSurfaceVariant,
-                                          fontFamily: 'Tajawal',
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'جاري التحميل...',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: colorScheme.onSurfaceVariant,
+                                            fontFamily: 'Tajawal',
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                      ],
+                                    ),
+                                  );
+                                },
+                                errorWidget: (context, url, error) {
+                                  return Container(
+                                    color: colorScheme.surfaceVariant,
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image,
+                                          color: colorScheme.onSurfaceVariant,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'خطأ في التحميل',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: colorScheme.onSurfaceVariant,
+                                            fontFamily: 'Tajawal',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                             // Gradient overlay for better text visibility
                             Positioned(
@@ -369,28 +372,31 @@ class _FullImageViewState extends State<FullImageView> {
           children: [
             Expanded(
               child: Center(
-                child: CachedNetworkImage(
-                  imageUrl: widget.img.imageUrl,
-                  fit: BoxFit.contain,
-                  progressIndicatorBuilder:
-                      (context, url, downloadProgress) => SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: CircularProgressIndicator(
-                      value: downloadProgress.progress,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
-                        Icons.broken_image,
-                        color: Colors.grey,
-                        size: 64,
+                child: Hero(
+                  tag: widget.img.imageUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.img.imageUrl,
+                    fit: BoxFit.contain,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: CircularProgressIndicator(
+                        value: downloadProgress.progress,
                       ),
-                      SizedBox(height: 8),
-                      Text('تعذر تحميل الصورة'),
-                    ],
+                    ),
+                    errorWidget: (context, url, error) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                          size: 64,
+                        ),
+                        SizedBox(height: 8),
+                        Text('تعذر تحميل الصورة'),
+                      ],
+                    ),
                   ),
                 ),
               ),
