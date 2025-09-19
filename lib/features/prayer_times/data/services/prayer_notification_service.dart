@@ -1,6 +1,6 @@
 import 'package:adhan/adhan.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,7 +14,7 @@ class PrayerNotificationService {
     if (_initialized) return;
     tz.initializeTimeZones();
     try {
-      final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(timeZoneName));
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('UTC'));
