@@ -31,21 +31,46 @@ class WallpapersCubit extends Cubit<WallpapersState> {
   Future<void> loadWallpapers() async {
     emit(state.copyWith(status: WallpapersStatus.loading, errorMessage: null));
     try {
+      final cachedImages = await _service.loadCachedWallpapers();
+      if (cachedImages.isNotEmpty) {
+        emit(state.copyWith(
+          status: WallpapersStatus.success,
+          images: cachedImages,
+          errorMessage: null,
+        ));
+      }
+
       final images = await _service.fetchWallpapers();
       emit(state.copyWith(
         status: WallpapersStatus.success,
         images: images,
+        errorMessage: null,
       ));
     } on WallpapersException catch (error) {
-      emit(state.copyWith(
-        status: WallpapersStatus.failure,
-        errorMessage: error.message,
-      ));
+      if (state.images.isNotEmpty) {
+        emit(state.copyWith(
+          status: WallpapersStatus.success,
+          errorMessage: error.message,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: WallpapersStatus.failure,
+          errorMessage: error.message,
+        ));
+      }
     } catch (error) {
-      emit(state.copyWith(
-        status: WallpapersStatus.failure,
-        errorMessage: 'تعذر تحميل الخلفيات. الرجاء المحاولة لاحقاً.',
-      ));
+      const fallbackMessage = 'تعذر تحميل الخلفيات. الرجاء المحاولة لاحقاً.';
+      if (state.images.isNotEmpty) {
+        emit(state.copyWith(
+          status: WallpapersStatus.success,
+          errorMessage: fallbackMessage,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: WallpapersStatus.failure,
+          errorMessage: fallbackMessage,
+        ));
+      }
     }
   }
 
@@ -131,18 +156,21 @@ class WallpapersCubit extends Cubit<WallpapersState> {
     }
 
     try {
-      final bytes = await _service.downloadImageBytes(url);
+      final cachedFile = await _service.getCachedImageFile(url);
+      final sourceFile =
+          cachedFile ?? await _service.ensureImageFile(url);
       final directory = Directory('/storage/emulated/0/Pictures/Alafasi');
       if (!directory.existsSync()) {
         directory.createSync(recursive: true);
       }
-      final file = File(
+      await sourceFile.copy(
         '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
-      await file.writeAsBytes(bytes);
       return const WallpapersActionResult.success(
         '✅ تم حفظ الصورة في المعرض (مجلد Alafasi)',
       );
+    } on WallpapersException catch (error) {
+      return WallpapersActionResult.failure('❌ فشل حفظ الصورة: ${error.message}');
     } catch (error) {
       return WallpapersActionResult.failure('❌ فشل حفظ الصورة: $error');
     }
@@ -161,10 +189,12 @@ class WallpapersCubit extends Cubit<WallpapersState> {
       if (dir == null) {
         return const WallpapersActionResult.failure('❌ تعذر الوصول إلى مجلد التخزين');
       }
-      final path = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final file = File(path);
-      final bytes = await _service.downloadImageBytes(image.imageUrl);
-      await file.writeAsBytes(bytes);
+      final cachedFile = await _service.getCachedImageFile(image.imageUrl);
+      final sourceFile =
+          cachedFile ?? await _service.ensureImageFile(image.imageUrl);
+      final file = await sourceFile.copy(
+        '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
 
       await Share.shareXFiles(
         [XFile(file.path)],
@@ -173,6 +203,8 @@ class WallpapersCubit extends Cubit<WallpapersState> {
             : 'صورة رائعة من التطبيق',
       );
       return const WallpapersActionResult.success('');
+    } on WallpapersException catch (error) {
+      return WallpapersActionResult.failure('❌ فشل مشاركة الصورة: ${error.message}');
     } catch (error) {
       return WallpapersActionResult.failure('❌ فشل مشاركة الصورة: $error');
     }
@@ -197,15 +229,15 @@ class WallpapersCubit extends Cubit<WallpapersState> {
     }
 
     try {
-      final tempDir = await getTemporaryDirectory();
-      final file = File(
-        '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg',
-      );
-      final bytes = await _service.downloadImageBytes(url);
-      await file.writeAsBytes(bytes);
+      final cachedFile = await _service.getCachedImageFile(url);
+      final file = cachedFile ?? await _service.ensureImageFile(url);
 
       await WallpaperManagerFlutter().setwallpaperfromFile(file, location);
       return const WallpapersActionResult.success('✅ تم تعيين الخلفية بنجاح');
+    } on WallpapersException catch (error) {
+      return WallpapersActionResult.failure(
+        '❌ فشل تعيين الخلفية: ${error.message}',
+      );
     } catch (error) {
       return WallpapersActionResult.failure('❌ فشل تعيين الخلفية: $error');
     }
