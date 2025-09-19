@@ -1,21 +1,46 @@
+import 'dart:io';
+
 import 'package:afasi/features/wallpapers/data/services/wallpapers_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockHttpClient client;
   late WallpapersService service;
+  late Directory tempDir;
+  late Directory documentsDir;
+  late PathProviderPlatform originalPlatform;
 
   setUpAll(() {
     registerFallbackValue(Uri.parse('https://example.com'));
   });
 
-  setUp(() {
+  setUp(() async {
     client = MockHttpClient();
+    tempDir = await Directory.systemTemp.createTemp('wallpapers_temp_');
+    documentsDir = await Directory.systemTemp.createTemp('wallpapers_docs_');
+    originalPlatform = PathProviderPlatform.instance;
+    PathProviderPlatform.instance = _TestPathProviderPlatform(
+      temporaryPath: tempDir.path,
+      applicationDocumentsPath: documentsDir.path,
+    );
     service = WallpapersService(client: client);
+  });
+
+  tearDown(() async {
+    PathProviderPlatform.instance = originalPlatform;
+    if (await tempDir.exists()) {
+      await tempDir.delete(recursive: true);
+    }
+    if (await documentsDir.exists()) {
+      await documentsDir.delete(recursive: true);
+    }
   });
 
   test('fetchWallpapers returns parsed images', () async {
@@ -142,6 +167,41 @@ void main() {
       ),
     );
   });
+
+  test('fetchWallpapers returns cached data when network fails', () async {
+    when(() => client.get(any()))
+        .thenAnswer(
+          (_) async => http.Response(
+            _buildFeedXml(1, start: 1),
+            200,
+          ),
+        )
+        .thenThrow(Exception('network'));
+
+    final initialImages = await service.fetchWallpapers();
+    expect(initialImages, isNotEmpty);
+
+    final cachedImages = await service.fetchWallpapers();
+    expect(cachedImages, isNotEmpty);
+    expect(cachedImages.first.imageUrl, initialImages.first.imageUrl);
+  });
+
+  test('downloadImageBytes reuses cached file when available', () async {
+    final bytes = <int>[1, 2, 3, 4];
+    when(() => client.get(any())).thenAnswer(
+      (_) async => http.Response.bytes(bytes, 200),
+    );
+
+    final firstDownload =
+        await service.downloadImageBytes('https://example.com/image.jpg');
+    expect(firstDownload, equals(bytes));
+
+    when(() => client.get(any())).thenThrow(Exception('should not fetch'));
+
+    final cachedDownload =
+        await service.downloadImageBytes('https://example.com/image.jpg');
+    expect(cachedDownload, equals(bytes));
+  });
 }
 
 String _buildFeedXml(int count, {required int start}) {
@@ -162,4 +222,21 @@ String _buildFeedXml(int count, {required int start}) {
 
   buffer.write('</feed>');
   return buffer.toString();
+}
+
+class _TestPathProviderPlatform extends PathProviderPlatform {
+  _TestPathProviderPlatform({
+    required this.temporaryPath,
+    required this.applicationDocumentsPath,
+  });
+
+  final String temporaryPath;
+  final String applicationDocumentsPath;
+
+  @override
+  Future<String?> getTemporaryPath() async => temporaryPath;
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async =>
+      applicationDocumentsPath;
 }
