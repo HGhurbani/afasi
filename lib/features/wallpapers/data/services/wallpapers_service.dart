@@ -17,33 +17,35 @@ class WallpapersException implements Exception {
 class WallpapersService {
   WallpapersService({http.Client? client}) : _client = client ?? http.Client();
 
-  static const String _feedUrl =
-      'https://appstaki.blogspot.com/feeds/posts/default?alt=atom&max-results=100';
+  static const String _baseFeedUrl =
+      'https://appstaki.blogspot.com/feeds/posts/default';
 
   final http.Client _client;
 
   Future<List<BlogImage>> fetchWallpapers() async {
+    const pageSize = 100;
+    var startIndex = 1;
+    final images = <BlogImage>[];
+
     try {
-      final response = await _client.get(Uri.parse(_feedUrl));
-      if (response.statusCode != 200) {
-        throw WallpapersException(
-          'فشل في جلب الخلفيات (رمز الاستجابة: ${response.statusCode})',
+      while (true) {
+        final response = await _client.get(
+          _buildFeedUri(maxResults: pageSize, startIndex: startIndex),
         );
-      }
-
-      final document = XmlDocument.parse(response.body);
-      final entries = document.findAllElements('entry');
-
-      final images = <BlogImage>[];
-
-      for (final entry in entries) {
-        final title = entry.getElement('title')?.innerText ?? 'بدون عنوان';
-        final content = entry.getElement('content')?.innerText ?? '';
-
-        final match = RegExp(r'<img[^>]+src="([^">]+)"').firstMatch(content);
-        if (match != null) {
-          images.add(BlogImage(title: title, imageUrl: match.group(1)!));
+        if (response.statusCode != 200) {
+          throw WallpapersException(
+            'فشل في جلب الخلفيات (رمز الاستجابة: ${response.statusCode})',
+          );
         }
+
+        final page = _parseFeed(response.body);
+        images.addAll(page.images);
+
+        if (page.entryCount < pageSize) {
+          break;
+        }
+
+        startIndex += pageSize;
       }
 
       return images;
@@ -63,5 +65,34 @@ class WallpapersService {
       throw WallpapersException('فشل تحميل الصورة (${response.statusCode})');
     }
     return response.bodyBytes;
+  }
+
+  Uri _buildFeedUri({required int maxResults, required int startIndex}) {
+    return Uri.parse(_baseFeedUrl).replace(
+      queryParameters: {
+        'alt': 'atom',
+        'max-results': '$maxResults',
+        'start-index': '$startIndex',
+      },
+    );
+  }
+
+  ({List<BlogImage> images, int entryCount}) _parseFeed(String xmlString) {
+    final document = XmlDocument.parse(xmlString);
+    final entries = document.findAllElements('entry').toList();
+
+    final images = <BlogImage>[];
+
+    for (final entry in entries) {
+      final title = entry.getElement('title')?.innerText ?? 'بدون عنوان';
+      final content = entry.getElement('content')?.innerText ?? '';
+
+      final match = RegExp(r'<img[^>]+src="([^">]+)"').firstMatch(content);
+      if (match != null) {
+        images.add(BlogImage(title: title, imageUrl: match.group(1)!));
+      }
+    }
+
+    return (images: images, entryCount: entries.length);
   }
 }

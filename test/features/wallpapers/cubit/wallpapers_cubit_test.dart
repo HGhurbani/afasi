@@ -20,9 +20,13 @@ void main() {
   });
 
   test('loadWallpapers emits loading then success state', () async {
-    final images = [
-      BlogImage(title: 'صورة 1', imageUrl: 'https://example.com/1.jpg'),
-    ];
+    final images = List.generate(
+      150,
+      (index) => BlogImage(
+        title: 'صورة ${index + 1}',
+        imageUrl: 'https://example.com/${index + 1}.jpg',
+      ),
+    );
 
     when(() => service.fetchWallpapers()).thenAnswer((_) async => images);
 
