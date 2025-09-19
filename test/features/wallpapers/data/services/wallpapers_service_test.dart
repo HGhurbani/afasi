@@ -32,15 +32,50 @@ void main() {
 </feed>
 ''';
 
-    when(() => client.get(any())).thenAnswer(
-      (_) async => http.Response(xml, 200),
-    );
+    when(() => client.get(any())).thenAnswer((invocation) async {
+      final uri = invocation.positionalArguments.first as Uri;
+      expect(uri.queryParameters['max-results'], '100');
+      expect(uri.queryParameters['start-index'], '1');
+      return http.Response(xml, 200);
+    });
 
     final images = await service.fetchWallpapers();
 
     expect(images, hasLength(2));
     expect(images.first.title, 'صورة 1');
     expect(images.first.imageUrl, 'https://example.com/1.jpg');
+  });
+
+  test('fetchWallpapers combines multiple pages until fewer than page size',
+      () async {
+    final firstPageXml = _buildFeedXml(100, start: 1);
+    final secondPageXml = _buildFeedXml(60, start: 101);
+
+    var callCount = 0;
+    when(() => client.get(any())).thenAnswer((invocation) async {
+      final uri = invocation.positionalArguments.first as Uri;
+      callCount++;
+      switch (callCount) {
+        case 1:
+          expect(uri.queryParameters['start-index'], '1');
+          expect(uri.queryParameters['max-results'], '100');
+          return http.Response(firstPageXml, 200);
+        case 2:
+          expect(uri.queryParameters['start-index'], '101');
+          expect(uri.queryParameters['max-results'], '100');
+          return http.Response(secondPageXml, 200);
+        default:
+          fail('Unexpected additional request: $uri');
+      }
+    });
+
+    final images = await service.fetchWallpapers();
+
+    expect(callCount, 2);
+    expect(images, hasLength(160));
+    expect(images.first.title, 'صورة 1');
+    expect(images.last.title, 'صورة 160');
+    expect(images.last.imageUrl, 'https://example.com/160.jpg');
   });
 
   test('fetchWallpapers throws when response code is not 200', () async {
@@ -107,4 +142,24 @@ void main() {
       ),
     );
   });
+}
+
+String _buildFeedXml(int count, {required int start}) {
+  final buffer = StringBuffer(
+    '<?xml version="1.0" encoding="UTF-8"?>\n<feed>\n',
+  );
+
+  for (var index = 0; index < count; index++) {
+    final itemIndex = start + index;
+    buffer
+      ..writeln('  <entry>')
+      ..writeln('    <title>صورة $itemIndex</title>')
+      ..writeln(
+        '    <content type="html"><![CDATA[<img src="https://example.com/$itemIndex.jpg"/>]]></content>',
+      )
+      ..writeln('  </entry>');
+  }
+
+  buffer.write('</feed>');
+  return buffer.toString();
 }
