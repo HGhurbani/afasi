@@ -215,14 +215,13 @@ class WallpapersPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   );
-                  },
-                ),
+                },
               ),
+            ),
             );
           },
         ),
