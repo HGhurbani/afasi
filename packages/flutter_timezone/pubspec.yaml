@@ -1,0 +1,23 @@
+name: flutter_timezone
+version: 1.0.8
+description: Platform channel plugin to provide timezone information.
+homepage: https://pub.dev/packages/flutter_timezone
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: net.wolverinebeach.flutter_timezone
+        pluginClass: FlutterTimezonePlugin

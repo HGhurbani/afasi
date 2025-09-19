@@ -16,7 +16,8 @@ dependencies:
   http: ^1.3.0
   youtube_explode_dart: ^2.3.6
   flutter_local_notifications: ^18.0.1
-  flutter_timezone: ^1.0.6
+  flutter_timezone:
+    path: packages/flutter_timezone
   shared_preferences: ^2.5.1
   just_audio: ^0.9.45
   just_audio_background: ^0.0.1-beta.17
