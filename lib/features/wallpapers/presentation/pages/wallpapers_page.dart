@@ -374,28 +374,36 @@ class _FullImageViewState extends State<FullImageView> {
               child: Center(
                 child: Hero(
                   tag: widget.img.imageUrl,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.img.imageUrl,
-                    fit: BoxFit.contain,
-                    progressIndicatorBuilder:
-                        (context, url, downloadProgress) => SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: CircularProgressIndicator(
-                        value: downloadProgress.progress,
-                      ),
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 4,
+                    boundaryMargin: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 32,
                     ),
-                    errorWidget: (context, url, error) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.broken_image,
-                          color: Colors.grey,
-                          size: 64,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.img.imageUrl,
+                      fit: BoxFit.contain,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) => SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: CircularProgressIndicator(
+                          value: downloadProgress.progress,
                         ),
-                        SizedBox(height: 8),
-                        Text('تعذر تحميل الصورة'),
-                      ],
+                      ),
+                      errorWidget: (context, url, error) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 64,
+                          ),
+                          SizedBox(height: 8),
+                          Text('تعذر تحميل الصورة'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
