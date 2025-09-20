@@ -17,6 +17,8 @@ class AudioService {
 
   final AudioPlayer _audioPlayer;
   final Map<String, YoutubeAudioCacheEntry> _youtubeCache = {};
+  late final Future<Directory> _applicationSupportDirectoryFuture =
+      getApplicationSupportDirectory();
 
   StreamSubscription<ProcessingState>? _processingStateSubscription;
   StreamSubscription<bool>? _playingStreamSubscription;
@@ -103,7 +105,7 @@ class AudioService {
       );
     }
 
-    final Directory dir = await getApplicationSupportDirectory();
+    final Directory dir = await _applicationSupportDirectoryFuture;
     final String filePath = '${dir.path}/${supplication.title}.mp3';
     if (await File(filePath).exists()) {
       return AudioSource.file(
