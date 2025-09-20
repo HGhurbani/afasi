@@ -65,11 +65,11 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             style: TextStyle(fontFamily: 'Tajawal', color: Colors.white),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.volunteer_activism, color: Colors.white),
-              onPressed: () => myAppKey.currentState?.confirmAndShowRewardedAd(),
-              tooltip: 'تبرع بمشاهدة إعلان',
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.volunteer_activism, color: Colors.white),
+            //   onPressed: () => myAppKey.currentState?.confirmAndShowRewardedAd(),
+            //   tooltip: 'تبرع بمشاهدة إعلان',
+            // ),
             IconButton(
               icon: Icon(
                 myAppKey.currentState?.isDarkMode == true
