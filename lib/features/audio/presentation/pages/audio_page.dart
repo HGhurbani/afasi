@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -1488,16 +1489,40 @@ class _AudioPageState extends State<AudioPage> with WidgetsBindingObserver {
 
   Future<void> checkDownloadedStatus() async {
     final Directory dir = await getApplicationSupportDirectory();
-    for (var category in audioCategories.keys) {
-      for (var supp in audioCategories[category]!) {
-        if (!supp.isLocalAudio) {
-          final String filePath = '${dir.path}/${supp.title}.mp3';
-          if (await File(filePath).exists()) {
-            _downloadedSupplications.add(supp.title);
-          }
+    final Set<String> downloadedTitles = {};
+
+    await for (final entity in dir.list(followLinks: false)) {
+      if (entity is! File) {
+        continue;
+      }
+
+      final String fileName = p.basename(entity.path);
+      if (!fileName.toLowerCase().endsWith('.mp3')) {
+        continue;
+      }
+
+      downloadedTitles.add(
+        fileName.substring(0, fileName.length - '.mp3'.length),
+      );
+    }
+
+    final Set<String> validDownloadedSupplications = {};
+    for (final category in audioCategories.keys) {
+      for (final supp in audioCategories[category]!) {
+        if (!supp.isLocalAudio && downloadedTitles.contains(supp.title)) {
+          validDownloadedSupplications.add(supp.title);
         }
       }
     }
+
+    _downloadedSupplications
+      ..clear()
+      ..addAll(validDownloadedSupplications);
+
+    if (!mounted) {
+      return;
+    }
+
     setState(() {});
   }
 
